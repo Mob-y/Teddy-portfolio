@@ -10,9 +10,50 @@ body {
 body::before {
   content: "";
   position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background-image: url("https://grainy-gradients.vercel.app/noise.svg");
   opacity: 0.05;
   pointer-events: none;
   z-index: 9999;
+}
+
+@layer components {
+  .pixel-border {
+    border: 4px solid white;
+    box-shadow: 0 -4px 0 0 black, 0 4px 0 0 black, -4px 0 0 0 black,
+      4px 0 0 0 black;
+  }
+}
+
+img {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.group:hover .aspect-video::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+      rgba(18, 16, 16, 0) 50%,
+      rgba(0, 0, 0, 0.2) 100%
+    ),
+    linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(255, 255, 255, 0.05) 50%);
+  background-size: 100% 100%, 100% 4px;
+  pointer-events: none;
+}
+
+.pixel-border {
+  border: 4px solid #1e293b;
+  box-shadow: -4px 0 0 0 #1e293b, 4px 0 0 0 #1e293b, 0 -4px 0 0 #1e293b,
+    0 4px 0 0 #1e293b;
+  background: rgba(15, 23, 42, 0.9);
+}
+
+.pixel-text {
+  font-family: "VT323", monospace;
+  image-rendering: pixelated;
 }
