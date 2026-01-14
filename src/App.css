@@ -5,6 +5,19 @@
   text-align: center;
 }
 
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+.cursor-blink {
+  animation: blink 0.8s infinite;
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;
