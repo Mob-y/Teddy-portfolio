@@ -34,7 +34,7 @@ const PROJECTS = [
   },
   {
     id: 2,
-    title: "Wild Project 1",
+    title: "Wild Project 2",
     description: "Plonger dans un site de voyage de luxe",
     image: "/images/aurumhorizon.png",
     tag: "Fullstack",
@@ -90,7 +90,7 @@ const PROJECTS = [
 ];
 
 const Particles = ({ isBadeline }) => {
-  const particleColor = isBadeline ? "#9333ea" : "#38bdf8";
+  const particleColor = isBadeline ? "#9333ea" : "#2563eb";
   return (
     <div
       key={isBadeline ? "bad" : "mad"}
@@ -116,11 +116,11 @@ const Particles = ({ isBadeline }) => {
             backgroundColor: particleColor,
             left: `${Math.random() * 100}%`,
             top: `${Math.random() * 100}%`,
-            width: "4px",
-            height: "4px",
+            width: "6px",
+            height: "6px",
             boxShadow: isBadeline
               ? "0 0 10px rgb(147, 51, 234)"
-              : "0 0 10px #7dd3fc",
+              : "0 0 10px #0ea5e9",
           }}
         />
       ))}
