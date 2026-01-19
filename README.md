@@ -11,7 +11,7 @@
 ## 📝 Description
 Création de mon portfolio avec un design pixel art (Celeste)
 
-👉 **[Voir la Démo en ligne](https://portfolio-teddy-seven.vercel.app/)** (Vercel, Netlify, etc.)
+👉 **[Voir la Démo en ligne](https://portfolio-teddy-seven.vercel.app/)**
 
 ---
 
