@@ -1,6 +1,7 @@
 const {
   getQuests,
   validateQuest,
+  getPlayerProgress,
 } = require("../services/quests.service");
 
 const getAllQuests = (_req, res) => {
@@ -19,7 +20,12 @@ const validateQuestAnswer = (req, res) => {
   res.json(result);
 };
 
+const getProgress = (_req, res) => {
+  res.json(getPlayerProgress());
+};
+
 module.exports = {
   getAllQuests,
   validateQuestAnswer,
+  getProgress,
 };
