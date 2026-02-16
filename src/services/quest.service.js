@@ -1,0 +1,15 @@
+const API_URL = "http://localhost:5000/api";
+export const questsService = {
+	async getProgress() {
+		const response = await fetch(`${API_URL}/quests/progress`);
+		return await response.json();
+	},
+	async validateQuest(questId, answer) {
+		const response = await fetch(`${API_URL}/quests/${questId}/validate`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ answer }),
+		});
+		return await response.json();
+	},
+};

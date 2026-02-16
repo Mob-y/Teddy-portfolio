@@ -1,31 +1,28 @@
-const {
-  getQuests,
-  validateQuest,
-  getPlayerProgress,
-} = require("../services/quests.service");
+const { getQuests, validateQuest, getPlayerProgress } = require("../services/quests.service");
 
 const getAllQuests = (_req, res) => {
-  res.json(getQuests());
+    res.json(getQuests());
 };
 
 const validateQuestAnswer = (req, res) => {
-  const { id } = req.params;
-  const { answer } = req.body;
+    const { id } = req.params;
+    const { answer } = req.body; // Récupère le { answer: 5 } ou le texte
 
-  if (!answer) {
-    return res.status(400).json({ error: "Answer is required" });
-  }
+    const result = validateQuest(id, answer);
 
-  const result = validateQuest(id, answer);
-  res.json(result);
+    if (result.success) {
+        return res.json(result); 
+    }
+
+    res.status(400).json(result);
 };
 
 const getProgress = (_req, res) => {
-  res.json(getPlayerProgress());
+    res.json(getPlayerProgress());
 };
 
 module.exports = {
-  getAllQuests,
-  validateQuestAnswer,
-  getProgress,
+    getAllQuests,
+    validateQuestAnswer,
+    getProgress,
 };
