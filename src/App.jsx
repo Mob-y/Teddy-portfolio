@@ -11,12 +11,17 @@ import {
 import { createPortal } from "react-dom";
 import PlayerHUD from "./components/PlayerHUD";
 import QuestNotification from "./components/QuestNotification";
+import Navbar from "./components/Navbar";
+import "./App.css";
 
+/* =============================================
+   TRANSITIONS & ANIMATIONS
+   ============================================= */
 const floatTransition = (duration = 3, delay = 0) => ({
-	duration: duration,
+	duration,
 	repeat: Infinity,
 	ease: "easeInOut",
-	delay: delay,
+	delay,
 });
 
 const floatAnimation = (yAmplitude = -6) => ({
@@ -96,12 +101,19 @@ const PROJECTS = [
 	},
 ];
 
+/* =============================================
+   PARTICLES (Effet visuel arrière-plan)
+   ============================================= */
 const Particles = ({ isBadeline }) => {
 	const particleColor = isBadeline ? "#9333ea" : "#2563eb";
+	const boxShadow = isBadeline
+		? "0 0 10px rgb(147, 51, 234)"
+		: "0 0 10px #0ea5e9";
+
 	return (
 		<div
 			key={isBadeline ? "bad-particles" : "mad-particles"}
-			className="fixed inset-0 pointer-events-none overflow-hidden z-0"
+			className="particles-container"
 		>
 			{[...Array(40)].map((_, i) => (
 				<motion.div
@@ -118,16 +130,12 @@ const Particles = ({ isBadeline }) => {
 						repeat: Infinity,
 						ease: "linear",
 					}}
-					className="absolute"
+					className="particle"
 					style={{
 						backgroundColor: particleColor,
+						boxShadow,
 						left: `${Math.random() * 100}%`,
 						top: `${Math.random() * 100}%`,
-						width: "6px",
-						height: "6px",
-						boxShadow: isBadeline
-							? "0 0 10px rgb(147, 51, 234)"
-							: "0 0 10px #0ea5e9",
 					}}
 				/>
 			))}
@@ -135,85 +143,67 @@ const Particles = ({ isBadeline }) => {
 	);
 };
 
-const BadelineSide = ({ isBadeline }) => {
-	const [pos, setPos] = useState({ x: 0, y: 0 });
+/* =============================================
+   BADELINE SIDE (Logique de la quête et position)
+   ============================================= */
+/* =============================================
+   BADELINE SIDE (Logique de la quête et position)
+   ============================================= */
+const BadelineSide = ({ isBadeline, completeBadelineQuest }) => {
+	const [pos, setPos] = useState({ x: -100, y: -100 });
 	const [ghosts, setGhosts] = useState([]);
-	const [hasStarted, setHasStarted] = useState(false);
 	const [clickCount, setClickCount] = useState(0);
 	const [questValidated, setQuestValidated] = useState(false);
 
 	useEffect(() => {
-		if (isBadeline && !hasStarted) {
-			const professionText = document.getElementById("job-title");
-			if (professionText) {
-				const rect = professionText.getBoundingClientRect();
-				setPos({
-					x: rect.right + (window.innerWidth < 768 ? 20 : 80) + window.scrollX,
-					y: rect.top + rect.height / 2 + window.scrollY,
-				});
-				setHasStarted(true);
-			}
-		} else if (!isBadeline) {
-			setHasStarted(false);
+		if (isBadeline) {
+			const updateInitialPos = () => {
+				const el = document.getElementById("job-title");
+				if (el) {
+					const rect = el.getBoundingClientRect();
+					setPos({
+						x: rect.right + 15 + window.scrollX,
+						y: rect.top + rect.height / 2 + window.scrollY - 20,
+					});
+				}
+			};
+			setTimeout(updateInitialPos, 200);
+		} else {
 			setClickCount(0);
 			setQuestValidated(false);
 		}
-	}, [isBadeline, hasStarted]);
+	}, [isBadeline]);
 
-	const completeBadelineQuest = async () => {
-		try {
-			const res = await fetch("http://localhost:5000/api/quests/3/validate", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ answer: 5 }),
-			});
-
-			if (res.ok) {
-				const data = await res.json();
-				if (data?.success) {
-					// ICI : Vérifie bien ce que contient "data"
-					// Si ton API renvoie { success: true, quest: { title: "..." } }
-					// Alors la ligne suivante est correcte :
-					const event = new CustomEvent("questUpdated", { detail: data.quest });
-					window.dispatchEvent(event);
-				}
+	// Validation de la quête
+	useEffect(() => {
+		if (clickCount >= 5 && !questValidated) {
+			setQuestValidated(true);
+			if (completeBadelineQuest) {
+				completeBadelineQuest(); // Appelle handleBadelineQuest de l'App
 			}
-		} catch (error) {
-			console.error("Erreur validation:", error);
 		}
-	};
+	}, [clickCount, questValidated, completeBadelineQuest]);
 
 	const teleport = (e) => {
 		e.preventDefault();
 		e.stopPropagation();
+
 		const sound = new Audio("/sounds/disappear.wav");
 		sound.volume = 0.1;
 		sound.play().catch(() => {});
 
-		const nextCount = clickCount + 1;
-		setClickCount(nextCount);
+		setClickCount(clickCount + 1);
 
-		if (nextCount >= 5 && !questValidated) {
-			setQuestValidated(true);
-			completeBadelineQuest();
-		}
+		setGhosts((prev) => [...prev, { id: Date.now(), x: pos.x, y: pos.y }]);
+		setTimeout(() => setGhosts((prev) => prev.slice(1)), 500);
 
-		const newGhost = {
-			id: `ghost-${Date.now()}-${Math.random()}`,
-			x: pos.x,
-			y: pos.y,
-		};
-		setGhosts((prev) => [...prev, newGhost]);
-		setTimeout(
-			() => setGhosts((prev) => prev.filter((g) => g.id !== newGhost.id)),
-			500,
-		);
+		const docWidth = document.documentElement.offsetWidth;
+		const docHeight = document.documentElement.scrollHeight;
+		const margin = 100;
 
-		const fullHeight = document.documentElement.scrollHeight;
-		const fullWidth = document.documentElement.scrollWidth;
 		setPos({
-			x: Math.floor(Math.random() * (fullWidth - 200)) + 100,
-			y: Math.floor(Math.random() * (fullHeight - 200)) + 100,
+			x: Math.random() * (docWidth - margin * 2) + margin,
+			y: Math.random() * (docHeight - margin * 2) + margin,
 		});
 	};
 
@@ -221,67 +211,55 @@ const BadelineSide = ({ isBadeline }) => {
 
 	return (
 		<>
-			<AnimatePresence>
-				{ghosts.map((ghost) => (
-					<motion.div
-						key={ghost.id}
-						initial={{ opacity: 0.6, scale: 1 }}
-						animate={{ opacity: 0, scale: 1.2 }}
-						exit={{ opacity: 0 }}
-						style={{
-							position: "absolute",
-							left: ghost.x,
-							top: ghost.y,
-							width: "45px",
-							height: "45px",
-							backgroundImage: 'url("/images/badeline.png")',
-							backgroundSize: "contain",
-							backgroundRepeat: "no-repeat",
-							filter:
-								"brightness(0.5) sepia(1) hue-rotate(250deg) saturate(5) blur(2px)",
-							imageRendering: "pixelated",
-							transform: "translate(-50%, -50%)",
-							pointerEvents: "none",
-							zIndex: 999998,
-						}}
-					/>
-				))}
-			</AnimatePresence>
+			{ghosts.map((ghost) => (
+				<motion.div
+					key={ghost.id}
+					initial={{ opacity: 0.6, scale: 1 }}
+					animate={{ opacity: 0, scale: 1.4 }}
+					exit={{ opacity: 0 }}
+					transition={{ duration: 0.5, ease: "easeOut" }}
+					className="badeline-ghost"
+					style={{
+						position: "absolute",
+						left: ghost.x, // ← directement en left/top, pas via x/y framer
+						top: ghost.y, //   comme ça pas de flash à 0,0
+						zIndex: 9998,
+						pointerEvents: "none",
+						transform: "translate(-50%, -50%)", // centrage du sprite
+					}}
+				/>
+			))}
+
 			<motion.div
+				key="badeline-main"
 				onClick={teleport}
-				animate={{ left: pos.x, top: pos.y }}
-				transition={{ type: "spring", stiffness: 500, damping: 30 }}
+				animate={{ x: pos.x, y: pos.y }}
+				transition={{ type: "spring", stiffness: 400, damping: 25 }}
+				className="badeline-sprite-wrapper"
 				style={{
-					width: "55px",
-					height: "55px",
-					imageRendering: "pixelated",
 					position: "absolute",
-					zIndex: 999999,
+					left: 0,
+					top: 0,
+					zIndex: 1000000,
 					cursor: "pointer",
-					transform: "translate(-50%, -50%)",
+					pointerEvents: "auto",
 				}}
 			>
 				<motion.div
 					animate={{ y: [0, -12, 0] }}
 					transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-					whileHover={{
-						scale: 1.2,
-						filter: "brightness(1.3) drop-shadow(0 0 20px #9333ea)",
-					}}
-					style={{
-						width: "100%",
-						height: "100%",
-						backgroundImage: 'url("/images/badeline.png")',
-						backgroundSize: "contain",
-						backgroundRepeat: "no-repeat",
-					}}
+					className="badeline-sprite"
+					style={{ pointerEvents: "none" }}
 				/>
-				<div className="absolute inset-0 bg-purple-600/30 blur-2xl -z-10 rounded-full animate-pulse" />
+				<div className="badeline-glow" />
 			</motion.div>
 		</>
 	);
 };
 
+/* =============================================
+   TYPEWRITER (Animation de texte)
+   ============================================= */
 const TypewriterText = ({ text, keyId }) => {
 	const wordItems = text
 		.split(" ")
@@ -322,6 +300,9 @@ const TypewriterText = ({ text, keyId }) => {
 	);
 };
 
+/* =============================================
+   COMPOSANT PRINCIPAL : APP
+   ============================================= */
 export default function App() {
 	const [selectedProject, setSelectedProject] = useState(null);
 	const [isBadeline, setIsBadeline] = useState(false);
@@ -342,7 +323,7 @@ export default function App() {
 			id: "sk-front",
 			name: "Frontend",
 			tools: "React, Vite, Tailwind",
-			color: isBadeline ? "text-purple-400" : "text-blue-500",
+			color: isBadeline ? "#c084fc" : "#3b82f6",
 			icon: <LayoutDashboard size={28} />,
 			delay: 0,
 		},
@@ -350,7 +331,7 @@ export default function App() {
 			id: "sk-back",
 			name: "Backend",
 			tools: "Node, Express",
-			color: isBadeline ? "text-fuchsia-400" : "text-sky-600",
+			color: isBadeline ? "#e879f9" : "#0284c7",
 			icon: <Code2 size={28} />,
 			delay: 0.2,
 		},
@@ -358,7 +339,7 @@ export default function App() {
 			id: "sk-db",
 			name: "Database",
 			tools: "MySQL, Workbench",
-			color: isBadeline ? "text-violet-500" : "text-indigo-500",
+			color: isBadeline ? "#a855f7" : "#6366f1",
 			icon: <Database size={28} />,
 			delay: 0.4,
 		},
@@ -366,24 +347,67 @@ export default function App() {
 			id: "sk-design",
 			name: "Design",
 			tools: "Procreate, UI/UX",
-			color: isBadeline ? "text-rose-400" : "text-cyan-500",
+			color: isBadeline ? "#fb7185" : "#06b6d4",
 			icon: <Palette size={28} />,
 			delay: 0.6,
 		},
 	];
+
+	// Dans App.jsx, remplace la fonction handleBadelineQuest :
+
+	const handleBadelineQuest = async () => {
+		try {
+			const response = await fetch(
+				"http://localhost:5000/api/quests/3/validate",
+				{
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ answer: 5 }), // questId=3, answer=5 comme le backend attend
+				},
+			);
+
+			const data = await response.json();
+
+			if (response.ok && data.success) {
+				console.log("✅ Quête Badeline validée !");
+
+				// Dispatch avec la bonne structure pour QuestNotification
+				window.dispatchEvent(
+					new CustomEvent("questUpdated", {
+						detail: {
+							quest: {
+								title: data.quest.title,
+								description: data.quest.description,
+								xp: data.quest.xp,
+							},
+						},
+					}),
+				);
+
+				// Son de victoire
+				const victorySound = new Audio("/sounds/victory.wav");
+				victorySound.volume = 0.2;
+				victorySound.play().catch(() => {});
+			} else {
+				console.warn("Quête déjà validée ou erreur :", data.message);
+			}
+		} catch (err) {
+			console.error("Erreur réseau:", err);
+		}
+	};
 
 	const toggleMode = () => {
 		const sound = new Audio("/sounds/dash.wav");
 		sound.volume = 0.1;
 		sound.play().catch(() => {});
 		setIsDashing(true);
-		setIsBadeline(!isBadeline);
+		setIsBadeline((prev) => !prev);
 		setTimeout(() => setIsDashing(false), 500);
 	};
 
 	return (
 		<motion.div
-			className="min-h-screen font-['VT323'] transition-colors duration-700 overflow-x-hidden relative"
+			className="app-root"
 			style={{ backgroundColor: theme.bg, color: theme.text }}
 			animate={
 				isDashing
@@ -398,25 +422,17 @@ export default function App() {
 			}
 		>
 			<Particles isBadeline={isBadeline} />
-
-			{/* --- ICI LA CORRECTION --- */}
 			<PlayerHUD isBadeline={isBadeline} />
 			<QuestNotification isBadeline={isBadeline} />
-			{/* ------------------------- */}
+			<Navbar isBadeline={isBadeline} />
 
-			<button
-				type="button"
-				onClick={toggleMode}
-				className="fixed top-4 right-4 md:top-8 md:right-8 z-[100] flex flex-col items-center gap-2 outline-none scale-90 md:scale-100"
-			>
-				<div
-					className="text-xl uppercase font-bold"
-					style={{ color: theme.primary }}
-				>
+			{/* --- TOGGLE --- */}
+			<button type="button" onClick={toggleMode} className="toggle-btn">
+				<div className="toggle-label" style={{ color: theme.primary }}>
 					{isBadeline ? "Part of Me" : "Madeline"}
 				</div>
 				<div
-					className="relative w-20 h-10 border-4 transition-all overflow-hidden shadow-[4px_4px_0_0_rgba(0,0,0,0.2)]"
+					className="toggle-track"
 					style={{
 						borderColor: theme.primary,
 						backgroundColor: `${theme.primary}20`,
@@ -424,40 +440,36 @@ export default function App() {
 				>
 					<motion.div
 						animate={{ x: isBadeline ? 40 : 0 }}
-						className="w-8 h-full"
+						className="toggle-thumb"
 						style={{ backgroundColor: theme.primary }}
 					/>
 				</div>
 			</button>
 
-			<header className="relative py-20 md:py-32 px-8 max-w-6xl mx-auto text-center z-10 flex flex-col items-center justify-center">
-				<h1
-					className="text-6xl sm:text-7xl md:text-[10rem] leading-none uppercase drop-shadow-md relative"
-					style={{ color: theme.primary }}
-				>
+			{/* --- HEADER --- */}
+			<header id="accueil" className="site-header">
+				<h1 className="site-title" style={{ color: theme.primary }}>
 					Teddy Serin
 				</h1>
 				<motion.p
 					id="job-title"
 					animate={floatAnimation(-5)}
 					transition={floatTransition(4)}
-					className="mt-4 text-xl md:text-4xl uppercase opacity-80"
+					className="site-subtitle"
 				>
 					&gt; Développeur Fullstack _ Pixel Artist
 				</motion.p>
 			</header>
 
-			<section className="relative max-w-6xl mx-auto px-8 mb-32 z-10">
-				<div className="grid grid-cols-1 lg:grid-cols-5 gap-16 items-stretch">
-					<div className="lg:col-span-3 flex flex-col">
-						<h2
-							className="text-3xl md:text-5xl uppercase font-bold flex items-center gap-4 h-16"
-							style={{ color: theme.accent }}
-						>
+			{/* --- DOSSIER JOUEUR --- */}
+			<section id="bio" className="section-player">
+				<div className="player-grid">
+					<div className="player-col-main">
+						<h2 className="section-title" style={{ color: theme.accent }}>
 							<motion.div
 								animate={{ y: [0, -8, 0] }}
 								transition={{ repeat: Infinity, duration: 2.5 }}
-								className="w-12 h-12 flex items-center justify-center"
+								className="section-title-icon"
 							>
 								<img
 									src={
@@ -467,10 +479,6 @@ export default function App() {
 									}
 									alt="Berry"
 									style={{
-										width: "100%",
-										height: "100%",
-										objectFit: "contain",
-										imageRendering: "pixelated",
 										filter: isBadeline
 											? "grayscale(100%) brightness(0.5) sepia(100%) hue-rotate(220deg) saturate(500%) drop-shadow(0 0 8px #9333ea)"
 											: "none",
@@ -479,34 +487,42 @@ export default function App() {
 							</motion.div>
 							01. Dossier Joueur
 						</h2>
-						<div className="flex-1 flex flex-col mt-12">
+
+						<div
+							style={{
+								flex: 1,
+								display: "flex",
+								flexDirection: "column",
+								marginTop: "3rem",
+							}}
+						>
 							<motion.div
 								animate={floatAnimation(-8)}
 								transition={floatTransition(3.5, 0.1)}
-								className="border-4 p-8 shadow-md backdrop-blur-md flex-1 flex flex-col justify-between mb-12"
+								className="player-card"
 								style={{
 									backgroundColor: theme.cardBg,
 									borderColor: theme.cardBorder,
 									boxShadow: theme.cardShadow,
 								}}
 							>
-								<div className="space-y-6">
-									<p className="text-2xl md:text-3xl leading-relaxed">
+								<div>
+									<p className="player-card-text">
 										Explorateur du web et artisan du pixel. Je transforme des
 										concepts complexes en interfaces fluides et en mondes
 										pixelisés.
 									</p>
 									<p
-										className="text-xl md:text-2xl opacity-80 italic border-l-4 pl-4"
-										style={{ borderColor: theme.primary }}
+										className="player-card-quote"
+										style={{ borderLeftColor: theme.primary }}
 									>
 										"Le sommet n'est qu'une étape, l'important est la précision
 										du dash."
 									</p>
 								</div>
 								<div
-									className="mt-8 pt-6 border-t-2 flex flex-wrap gap-6 opacity-80 uppercase font-bold text-lg md:text-xl tracking-wider"
-									style={{ borderColor: `${theme.cardBorder}40` }}
+									className="player-stats"
+									style={{ borderTopColor: `${theme.cardBorder}40` }}
 								>
 									<div>
 										<span style={{ color: theme.primary }}>LVL:</span> 28
@@ -523,23 +539,29 @@ export default function App() {
 									</div>
 								</div>
 							</motion.div>
-							<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+							<div className="social-grid">
 								<motion.a
 									animate={floatAnimation(-5)}
 									transition={floatTransition(3, 0)}
 									href="https://github.com/Mob-y"
 									target="_blank"
 									rel="noopener noreferrer"
-									className="h-16 md:h-20 border-4 flex items-center justify-center gap-4 hover:scale-105 transition-all"
+									className="social-link"
 									style={{
 										backgroundColor: theme.cardBg,
 										borderColor: theme.cardBorder,
 										boxShadow: theme.cardShadow,
 									}}
 								>
-									<Code2 size={30} style={{ color: theme.primary }} />{" "}
-									<span className="text-2xl md:text-3xl font-bold tracking-wider">
-										GITHUB
+									<Code2
+										size={30}
+										className="social-link-icon"
+										style={{ color: theme.primary }}
+									/>
+									<span className="social-link-text">GITHUB</span>
+									<span className="social-link-email-hidden">
+										github.com/Mob-y
 									</span>
 								</motion.a>
 								<motion.a
@@ -548,23 +570,28 @@ export default function App() {
 									href="https://www.linkedin.com/in/teddy-serin-56215a266/"
 									target="_blank"
 									rel="noopener noreferrer"
-									className="h-16 md:h-20 border-4 flex items-center justify-center gap-4 hover:scale-105 transition-all"
+									className="social-link"
 									style={{
 										backgroundColor: theme.cardBg,
 										borderColor: theme.cardBorder,
 										boxShadow: theme.cardShadow,
 									}}
 								>
-									<LayoutDashboard size={30} style={{ color: theme.primary }} />{" "}
-									<span className="text-2xl md:text-3xl font-bold tracking-wider">
-										LINKEDIN
+									<LayoutDashboard
+										size={30}
+										className="social-link-icon"
+										style={{ color: theme.primary }}
+									/>
+									<span className="social-link-text">LINKEDIN</span>
+									<span className="social-link-email-hidden">
+										linkedin.com/in/teddy-serin
 									</span>
 								</motion.a>
 								<motion.a
 									animate={floatAnimation(-5)}
 									transition={floatTransition(3, 0.6)}
 									href="mailto:serinteddy@gmail.com"
-									className="h-16 md:h-20 border-4 flex items-center justify-center gap-4 hover:scale-105 transition-all group overflow-hidden"
+									className="social-link"
 									style={{
 										backgroundColor: theme.cardBg,
 										borderColor: theme.accent,
@@ -573,30 +600,32 @@ export default function App() {
 								>
 									<Mail
 										size={30}
+										className="social-link-icon"
 										style={{ color: theme.accent }}
-										className="group-hover:hidden"
 									/>
-									<span className="text-2xl md:text-3xl font-bold tracking-wider group-hover:hidden uppercase">
+									<span
+										className="social-link-text"
+										style={{ color: theme.accent }}
+									>
 										Gmail
 									</span>
-									<span className="hidden group-hover:block text-xl font-bold lowercase text-center px-2 w-full">
+									<span className="social-link-email-hidden">
 										serinteddy@gmail.com
 									</span>
 								</motion.a>
 							</div>
 						</div>
 					</div>
-					<div className="lg:col-span-2 flex flex-col">
-						<div className="h-16 mb-12 invisible lg:block text-4xl">
-							Aligner
-						</div>
-						<div className="flex-1 flex flex-col justify-between gap-4">
+
+					<div className="player-col-skills">
+						<div className="skills-spacer" aria-hidden="true" />
+						<div className="skills-list">
 							{SKILLS.map((skill) => (
 								<motion.div
 									key={skill.id}
 									animate={floatAnimation(-6)}
 									transition={floatTransition(3.2, skill.delay)}
-									className="flex items-center gap-6 border-l-8 border-4 p-6 h-full"
+									className="skill-card"
 									style={{
 										backgroundColor: theme.cardBg,
 										borderColor: theme.cardBorder,
@@ -604,14 +633,12 @@ export default function App() {
 										boxShadow: theme.cardShadow,
 									}}
 								>
-									<div className={`${skill.color} shrink-0`}>{skill.icon}</div>
+									<div style={{ color: skill.color, flexShrink: 0 }}>
+										{skill.icon}
+									</div>
 									<div>
-										<div className="text-3xl uppercase font-bold tracking-wider">
-											{skill.name}
-										</div>
-										<div className="text-xl opacity-70 uppercase tracking-wide">
-											{skill.tools}
-										</div>
+										<div className="skill-name">{skill.name}</div>
+										<div className="skill-tools">{skill.tools}</div>
 									</div>
 								</motion.div>
 							))}
@@ -620,11 +647,10 @@ export default function App() {
 				</div>
 			</section>
 
-			<main className="relative max-w-6xl mx-auto px-8 pb-40 z-10">
-				<h2 className="text-4xl md:text-6xl font-bold uppercase mb-16">
-					02. Inventaire
-				</h2>
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+			{/* --- INVENTAIRE --- */}
+			<main id="projects" className="section-inventory">
+				<h2 className="inventory-title">02. Inventaire</h2>
+				<div className="projects-grid">
 					{PROJECTS.map((p, idx) => (
 						<motion.div
 							key={`project-${p.id}`}
@@ -632,7 +658,7 @@ export default function App() {
 							transition={floatTransition(4, idx * 0.2)}
 							whileHover={{ scale: 1.02, y: -15 }}
 							onClick={() => setSelectedProject(p)}
-							className="cursor-pointer border-4 overflow-hidden transition-all"
+							className="project-card"
 							style={{
 								backgroundColor: theme.cardBg,
 								borderColor: theme.cardBorder,
@@ -642,55 +668,46 @@ export default function App() {
 							<img
 								src={p.image}
 								alt={p.title}
-								className="w-full aspect-video object-cover border-b-4"
-								style={{
-									imageRendering: "pixelated",
-									borderColor: theme.cardBorder,
-								}}
+								className="project-card-img"
+								style={{ borderBottomColor: theme.cardBorder }}
 							/>
-							<div className="p-8">
-								<h3 className="text-4xl uppercase font-bold">{p.title}</h3>
-								<p className="text-2xl opacity-60 uppercase italic">
-									{p.description}
-								</p>
+							<div className="project-card-body">
+								<h3 className="project-card-title">{p.title}</h3>
+								<p className="project-card-desc">{p.description}</p>
 							</div>
 						</motion.div>
 					))}
 				</div>
 			</main>
 
-			<section className="relative max-w-4xl mx-auto px-8 mb-40 z-10">
+			{/* --- CONTACT --- */}
+			<section id="contact" className="section-contact">
 				<motion.div
 					animate={floatAnimation(-12)}
 					transition={floatTransition(5)}
-					className="border-8 p-6 bg-black text-white shadow-xl"
+					className="contact-card"
 					style={{ borderColor: theme.primary }}
 				>
-					<div className="flex flex-col md:flex-row gap-8 items-center">
+					<div className="contact-inner">
 						<div
-							className="w-32 h-32 border-4 shrink-0 overflow-hidden"
+							className="contact-avatar"
 							style={{ borderColor: theme.primary }}
 						>
 							<img
 								src="images/avatar.png"
 								alt="Avatar"
-								className="w-full h-full object-cover object-[50%_20%]"
 								style={{
-									imageRendering: "pixelated",
 									filter: isBadeline
 										? "hue-rotate(280deg) brightness(0.8)"
 										: "none",
 								}}
 							/>
 						</div>
-						<div className="flex-1 space-y-4 text-center md:text-left">
-							<h3
-								className="text-3xl font-bold"
-								style={{ color: theme.primary }}
-							>
+						<div className="contact-content">
+							<h3 className="contact-name" style={{ color: theme.primary }}>
 								{isBadeline ? "Part_of_Me.exe" : "Teddy_Serin.js"}
 							</h3>
-							<div className="text-2xl md:text-3xl min-h-[100px]">
+							<div className="contact-text">
 								<TypewriterText
 									keyId={isBadeline ? "bad" : "mad"}
 									text={
@@ -705,15 +722,18 @@ export default function App() {
 				</motion.div>
 			</section>
 
+			{/* --- FOOTER --- */}
 			<footer
-				className="py-20 text-center border-t-8 transition-all z-10"
-				style={{ backgroundColor: theme.cardBg, borderColor: theme.cardBorder }}
+				className="site-footer"
+				style={{
+					backgroundColor: theme.cardBg,
+					borderTopColor: theme.cardBorder,
+				}}
 			>
-				<p className="text-2xl md:text-3xl uppercase tracking-widest font-bold opacity-40">
-					Teddy Serin — {isBadeline ? "Part of Me" : "The Summit"} — 2026
-				</p>
+				<p>Teddy Serin — {isBadeline ? "Part of Me" : "The Summit"} — 2026</p>
 			</footer>
 
+			{/* --- MODALE --- */}
 			{typeof document !== "undefined" &&
 				createPortal(
 					<AnimatePresence>
@@ -723,13 +743,13 @@ export default function App() {
 								animate={{ opacity: 1 }}
 								exit={{ opacity: 0 }}
 								onClick={() => setSelectedProject(null)}
-								className="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md"
+								className="modal-overlay"
 							>
 								<motion.div
 									initial={{ scale: 0.9, y: 20 }}
 									animate={{ scale: 1, y: 0 }}
 									onClick={(e) => e.stopPropagation()}
-									className="relative max-w-4xl w-full border-8 p-6 md:p-8 flex flex-col items-center shadow-2xl overflow-y-auto max-h-[90vh]"
+									className="modal-box"
 									style={{
 										backgroundColor: theme.bg,
 										borderColor: theme.primary,
@@ -737,43 +757,36 @@ export default function App() {
 									}}
 								>
 									<div
-										className="w-full flex justify-between items-center mb-6 border-b-4 pb-4"
-										style={{ borderColor: theme.cardBorder }}
+										className="modal-header"
+										style={{ borderBottomColor: theme.cardBorder }}
 									>
 										<span
-											className="text-2xl md:text-3xl uppercase font-bold"
+											className="modal-header-label"
 											style={{ color: theme.primary }}
 										>
 											Inspection de l'item
 										</span>
 										<X
 											size={40}
-											className="cursor-pointer hover:rotate-90 transition-transform"
+											className="modal-close"
 											onClick={() => setSelectedProject(null)}
 										/>
 									</div>
 									<img
 										src={selectedProject.image}
 										alt={selectedProject.title}
-										className="max-h-[35vh] w-auto border-4 mb-6 shadow-md object-contain"
-										style={{
-											imageRendering: "pixelated",
-											borderColor: theme.cardBorder,
-										}}
+										className="modal-img"
+										style={{ borderColor: theme.cardBorder }}
 									/>
-									<h2 className="text-3xl md:text-6xl uppercase font-bold text-center mb-4">
-										{selectedProject.title}
-									</h2>
-									<p className="text-lg md:text-2xl opacity-70 uppercase mb-8 text-center">
-										{selectedProject.description}
-									</p>
-									<div className="flex flex-col sm:flex-row flex-wrap justify-center gap-4">
+									<h2 className="modal-title">{selectedProject.title}</h2>
+									<p className="modal-desc">{selectedProject.description}</p>
+									<div className="modal-actions">
 										{selectedProject.link && selectedProject.link !== "#" && (
 											<a
 												href={selectedProject.link}
 												target="_blank"
 												rel="noopener noreferrer"
-												className="text-xl px-10 py-3 uppercase font-bold text-white transition-transform hover:scale-105 shadow-md"
+												className="modal-btn-primary"
 												style={{ backgroundColor: theme.primary }}
 											>
 												🔗 Voir le site
@@ -784,7 +797,7 @@ export default function App() {
 												href={selectedProject.github}
 												target="_blank"
 												rel="noopener noreferrer"
-												className="text-xl px-10 py-3 uppercase font-bold border-4 transition-transform hover:scale-105 shadow-md"
+												className="modal-btn-outline"
 												style={{
 													borderColor: theme.primary,
 													color: theme.primary,
@@ -800,7 +813,12 @@ export default function App() {
 					</AnimatePresence>,
 					document.body,
 				)}
-			<BadelineSide isBadeline={isBadeline} />
+
+			{/* CONNEXION DE LA QUÊTE ICI */}
+			<BadelineSide
+				isBadeline={isBadeline}
+				completeBadelineQuest={handleBadelineQuest}
+			/>
 		</motion.div>
 	);
 }

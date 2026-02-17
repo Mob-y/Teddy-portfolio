@@ -1,0 +1,148 @@
+/* =============================================
+   QuestNotification.css — Responsive complet
+   ============================================= */
+
+.theme-madeline {
+	--quest-bg: #172554;
+	--quest-border: #3b82f6;
+	--quest-text: #dbeafe;
+	--quest-xp: #0ea5e9;
+}
+.theme-badeline {
+	--quest-bg: #2e1065;
+	--quest-border: #a855f7;
+	--quest-text: #f3e8ff;
+	--quest-xp: #fb7185;
+}
+
+.quest-notification-wrapper {
+	position: fixed;
+	bottom: 1.25rem;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 9999999;
+	pointer-events: none;
+	font-family: "VT323", monospace;
+	width: calc(100% - 2rem);
+	max-width: 380px;
+}
+
+@media (min-width: 480px) {
+	.quest-notification-wrapper {
+		bottom: 1.5rem;
+		width: auto;
+		min-width: 300px;
+	}
+}
+
+@media (min-width: 768px) {
+	.quest-notification-wrapper {
+		bottom: 2rem;
+		min-width: 320px;
+	}
+}
+
+@media (min-width: 1024px) {
+	.quest-notification-wrapper {
+		bottom: 2.5rem;
+	}
+}
+
+.quest-notification-container {
+	width: 100%;
+	pointer-events: auto;
+}
+
+.quest-notification-box {
+	background-color: var(--quest-bg);
+	border: 3px solid var(--quest-border);
+	padding: 0.875rem;
+	box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+	image-rendering: pixelated;
+}
+
+@media (min-width: 480px) {
+	.quest-notification-box {
+		border-width: 4px;
+		padding: 1rem;
+	}
+}
+
+.quest-content {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+	.quest-content {
+		gap: 1rem;
+	}
+}
+
+.quest-icon {
+	font-size: 1.75rem;
+	flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+	.quest-icon {
+		font-size: 2.25rem;
+	}
+}
+
+.quest-text-block {
+	display: flex;
+	flex-direction: column;
+	text-align: left;
+	min-width: 0;
+}
+
+.quest-status-title {
+	font-size: 1.1rem;
+	font-weight: bold;
+	text-transform: uppercase;
+	letter-spacing: -0.05em;
+	line-height: 1;
+	color: var(--quest-text);
+	margin: 0;
+}
+
+@media (min-width: 768px) {
+	.quest-status-title {
+		font-size: 1.25rem;
+	}
+}
+
+.quest-title-name {
+	font-size: 1rem;
+	font-weight: bold;
+	line-height: 1.25;
+	color: var(--quest-text);
+	opacity: 0.9;
+	margin: 2px 0 0 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+@media (min-width: 768px) {
+	.quest-title-name {
+		font-size: 1.125rem;
+		white-space: normal;
+	}
+}
+
+.quest-xp-bonus {
+	font-size: 0.8rem;
+	font-weight: bold;
+	margin-top: 0.2rem;
+	color: var(--quest-xp);
+}
+
+@media (min-width: 768px) {
+	.quest-xp-bonus {
+		font-size: 0.875rem;
+		margin-top: 0.25rem;
+	}
+}
