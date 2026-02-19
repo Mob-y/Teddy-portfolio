@@ -10,9 +10,11 @@ import {
 } from "lucide-react";
 import { createPortal } from "react-dom";
 import PlayerHUD from "./components/PlayerHUD";
+import QuestsModal from "./components/QuestsModal";
 import QuestNotification from "./components/QuestNotification";
 import Navbar from "./components/Navbar";
 import "./App.css";
+import QuestTracker from "./components/QuestsTracker";
 
 /* =============================================
    TRANSITIONS & ANIMATIONS
@@ -307,6 +309,7 @@ export default function App() {
 	const [selectedProject, setSelectedProject] = useState(null);
 	const [isBadeline, setIsBadeline] = useState(false);
 	const [isDashing, setIsDashing] = useState(false);
+	const [questsModalOpen, setQuestsModalOpen] = useState(false);
 
 	const theme = {
 		primary: isBadeline ? "#9333ea" : "#2563eb",
@@ -424,7 +427,11 @@ export default function App() {
 			<Particles isBadeline={isBadeline} />
 			<PlayerHUD isBadeline={isBadeline} />
 			<QuestNotification isBadeline={isBadeline} />
-			<Navbar isBadeline={isBadeline} />
+			<Navbar
+				isBadeline={isBadeline}
+				onQuestsClick={() => setQuestsModalOpen(true)}
+			/>
+			<QuestTracker isBadeline={isBadeline} />
 
 			{/* --- TOGGLE --- */}
 			<button type="button" onClick={toggleMode} className="toggle-btn">
@@ -813,6 +820,13 @@ export default function App() {
 					</AnimatePresence>,
 					document.body,
 				)}
+
+			{/* QUESTS MODAL */}
+			<QuestsModal
+				isOpen={questsModalOpen}
+				onClose={() => setQuestsModalOpen(false)}
+				isBadeline={isBadeline}
+			/>
 
 			{/* CONNEXION DE LA QUÊTE ICI */}
 			<BadelineSide

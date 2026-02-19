@@ -121,6 +121,14 @@
 	}
 }
 
+.hud-title {
+	font-size: 1.25rem;
+	font-weight: bold;
+	color: var(--hud-accent);
+	text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.7);
+	margin-bottom: 0.5rem;
+}
+
 /* =============================================
    LEVEL UP PORTAL
    ============================================= */
@@ -206,6 +214,11 @@
 }
 
 @keyframes berryBounce {
-	0%, 100% { transform: translateY(0); }
-	50%       { transform: translateY(-10px); }
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-10px);
+	}
 }

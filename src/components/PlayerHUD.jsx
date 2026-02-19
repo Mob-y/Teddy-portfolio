@@ -1,12 +1,16 @@
-"use client";
-
-import { useEffect, useState, useCallback, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import "./PlayerHUD.css";
 
 const PlayerHUD = ({ isBadeline }) => {
-	const [progress, setProgress] = useState({ xp: 0, level: 1, badges: [] });
+	const [progress, setProgress] = useState({
+		xp: 0,
+		level: 1,
+		badges: [],
+		completedQuests: [],
+		title: null,
+	});
 	const [showLevelUp, setShowLevelUp] = useState(false);
 	const previousLevelRef = useRef(null);
 
@@ -48,8 +52,10 @@ const PlayerHUD = ({ isBadeline }) => {
 
 	return (
 		<div className={`hud-root ${themeClass}`}>
-			{/* HUD PRINCIPAL */}
 			<div className="hud-container">
+				{/* Titre débloqué */}
+				{progress.title && <div className="hud-title">✨ {progress.title}</div>}
+
 				<div className="hud-header">
 					<motion.span
 						key={progress.level}
@@ -73,11 +79,12 @@ const PlayerHUD = ({ isBadeline }) => {
 
 				{progress.badges?.length > 0 && (
 					<div className="hud-badges-wrapper">
-						{progress.badges.map((badge) => (
+						{progress.badges.map((badge, idx) => (
 							<motion.span
-								key={badge}
+								key={`${badge}-earned-at-${progress.completedQuests[idx] || idx}`}
 								initial={{ scale: 0 }}
 								animate={{ scale: 1 }}
+								transition={{ duration: 0.3 }}
 								className="hud-badge"
 							>
 								{badge}
@@ -87,8 +94,7 @@ const PlayerHUD = ({ isBadeline }) => {
 				)}
 			</div>
 
-			{/* ANIMATION LEVEL UP */}
-
+			{/* LEVEL UP */}
 			{typeof document !== "undefined" &&
 				createPortal(
 					<AnimatePresence>
@@ -100,10 +106,7 @@ const PlayerHUD = ({ isBadeline }) => {
 								className="levelup-portal-overlay"
 							>
 								<motion.div
-									animate={{
-										rotate: [-2, 2, -2],
-										scale: [1, 1.1, 1],
-									}}
+									animate={{ rotate: [-2, 2, -2], scale: [1, 1.1, 1] }}
 									transition={{ repeat: Infinity, duration: 0.5 }}
 									className="levelup-text"
 								>
