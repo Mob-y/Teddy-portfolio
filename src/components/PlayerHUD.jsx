@@ -7,9 +7,10 @@ const PlayerHUD = ({ isBadeline }) => {
 	const [progress, setProgress] = useState({
 		xp: 0,
 		level: 1,
-		badges: [],
-		completedQuests: [],
+		activeBadge: null,
 		title: null,
+		completedQuests: [],
+		
 	});
 	const [showLevelUp, setShowLevelUp] = useState(false);
 	const previousLevelRef = useRef(null);
@@ -53,8 +54,10 @@ const PlayerHUD = ({ isBadeline }) => {
 	return (
 		<div className={`hud-root ${themeClass}`}>
 			<div className="hud-container">
-				{/* Titre débloqué */}
-				{progress.title && <div className="hud-title">✨ {progress.title}</div>}
+				{/* Titre actif */}
+				{progress.title && (
+					<div className="hud-title">✨ {progress.title}</div>
+				)}
 
 				<div className="hud-header">
 					<motion.span
@@ -77,19 +80,18 @@ const PlayerHUD = ({ isBadeline }) => {
 					/>
 				</div>
 
-				{progress.badges?.length > 0 && (
-					<div className="hud-badges-wrapper">
-						{progress.badges.map((badge, idx) => (
-							<motion.span
-								key={`${badge}-earned-at-${progress.completedQuests[idx] || idx}`}
-								initial={{ scale: 0 }}
-								animate={{ scale: 1 }}
-								transition={{ duration: 0.3 }}
-								className="hud-badge"
-							>
-								{badge}
-							</motion.span>
-						))}
+				{/* Badge actif (1 seul GIF) */}
+				{progress.activeBadge && (
+					<div className="hud-badge-wrapper">
+						<motion.img
+							key={progress.activeBadge}
+							src={`/images/${progress.activeBadge}`}
+							alt="badge actif"
+							initial={{ scale: 0 }}
+							animate={{ scale: 1 }}
+							transition={{ duration: 0.3 }}
+							className="hud-badge-img"
+						/>
 					</div>
 				)}
 			</div>

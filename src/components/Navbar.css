@@ -24,7 +24,7 @@
 	position: fixed;
 	top: 0.75rem;
 	right: 0.75rem;
-	z-index: 10000010;
+	z-index: 10000020;
 	padding: 0.35rem;
 	background-color: rgba(203, 213, 225, 0.95);
 	backdrop-filter: blur(12px);

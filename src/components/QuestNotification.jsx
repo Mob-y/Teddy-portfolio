@@ -8,24 +8,24 @@ import "./QuestNotification.css";
 const QuestNotification = ({ isBadeline }) => {
 	const [questData, setQuestData] = useState(null);
 	const [show, setShow] = useState(false);
-
 	const themeClass = isBadeline ? "theme-badeline" : "theme-madeline";
-
-	// CORRECTION dans QuestNotification.jsx — le parsing de l'event était fragile
 
 	useEffect(() => {
 		const handleQuestUpdate = (event) => {
 			// Supporte les deux formats : { detail: { quest: {...} } } et { detail: {...} }
-			const data = event.detail?.quest ?? event.detail;
-
-			if (data?.title) {
-				setQuestData(data);
+			const raw = event.detail?.quest ?? event.detail;
+			if (raw?.title) {
+				// Normalise xp : accepte xpReward OU xp
+				const normalized = {
+					...raw,
+					xp: raw.xpReward ?? raw.xp ?? 0,
+				};
+				setQuestData(normalized);
 				setShow(true);
 				const timer = setTimeout(() => setShow(false), 5000);
 				return () => clearTimeout(timer);
 			}
 		};
-
 		window.addEventListener("questUpdated", handleQuestUpdate);
 		return () => window.removeEventListener("questUpdated", handleQuestUpdate);
 	}, []);
@@ -48,7 +48,7 @@ const QuestNotification = ({ isBadeline }) => {
 								<div className="quest-text-block">
 									<h4 className="quest-status-title">Quête Accomplie</h4>
 									<p className="quest-title-name">{questData.title}</p>
-									<p className="quest-xp-bonus">+{questData.xp ?? 0} XP</p>
+									<p className="quest-xp-bonus">+{questData.xp} XP</p>
 								</div>
 							</div>
 						</div>

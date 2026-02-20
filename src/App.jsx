@@ -15,10 +15,8 @@ import QuestNotification from "./components/QuestNotification";
 import Navbar from "./components/Navbar";
 import "./App.css";
 import QuestTracker from "./components/QuestsTracker";
+import ContactModal from "./components/ContactModal";
 
-/* =============================================
-   TRANSITIONS & ANIMATIONS
-   ============================================= */
 const floatTransition = (duration = 3, delay = 0) => ({
 	duration,
 	repeat: Infinity,
@@ -104,14 +102,13 @@ const PROJECTS = [
 ];
 
 /* =============================================
-   PARTICLES (Effet visuel arrière-plan)
+   PARTICLES
    ============================================= */
 const Particles = ({ isBadeline }) => {
 	const particleColor = isBadeline ? "#9333ea" : "#2563eb";
 	const boxShadow = isBadeline
 		? "0 0 10px rgb(147, 51, 234)"
 		: "0 0 10px #0ea5e9";
-
 	return (
 		<div
 			key={isBadeline ? "bad-particles" : "mad-particles"}
@@ -146,10 +143,7 @@ const Particles = ({ isBadeline }) => {
 };
 
 /* =============================================
-   BADELINE SIDE (Logique de la quête et position)
-   ============================================= */
-/* =============================================
-   BADELINE SIDE (Logique de la quête et position)
+   BADELINE SIDE
    ============================================= */
 const BadelineSide = ({ isBadeline, completeBadelineQuest }) => {
 	const [pos, setPos] = useState({ x: -100, y: -100 });
@@ -176,13 +170,10 @@ const BadelineSide = ({ isBadeline, completeBadelineQuest }) => {
 		}
 	}, [isBadeline]);
 
-	// Validation de la quête
 	useEffect(() => {
 		if (clickCount >= 5 && !questValidated) {
 			setQuestValidated(true);
-			if (completeBadelineQuest) {
-				completeBadelineQuest(); // Appelle handleBadelineQuest de l'App
-			}
+			if (completeBadelineQuest) completeBadelineQuest();
 		}
 	}, [clickCount, questValidated, completeBadelineQuest]);
 
@@ -202,7 +193,6 @@ const BadelineSide = ({ isBadeline, completeBadelineQuest }) => {
 		const docWidth = document.documentElement.offsetWidth;
 		const docHeight = document.documentElement.scrollHeight;
 		const margin = 100;
-
 		setPos({
 			x: Math.random() * (docWidth - margin * 2) + margin,
 			y: Math.random() * (docHeight - margin * 2) + margin,
@@ -223,11 +213,11 @@ const BadelineSide = ({ isBadeline, completeBadelineQuest }) => {
 					className="badeline-ghost"
 					style={{
 						position: "absolute",
-						left: ghost.x, // ← directement en left/top, pas via x/y framer
-						top: ghost.y, //   comme ça pas de flash à 0,0
+						left: ghost.x,
+						top: ghost.y,
 						zIndex: 9998,
 						pointerEvents: "none",
-						transform: "translate(-50%, -50%)", // centrage du sprite
+						transform: "translate(-50%, -50%)",
 					}}
 				/>
 			))}
@@ -260,7 +250,7 @@ const BadelineSide = ({ isBadeline, completeBadelineQuest }) => {
 };
 
 /* =============================================
-   TYPEWRITER (Animation de texte)
+   TYPEWRITER
    ============================================= */
 const TypewriterText = ({ text, keyId }) => {
 	const wordItems = text
@@ -310,6 +300,7 @@ export default function App() {
 	const [isBadeline, setIsBadeline] = useState(false);
 	const [isDashing, setIsDashing] = useState(false);
 	const [questsModalOpen, setQuestsModalOpen] = useState(false);
+	const [contactModalOpen, setContactModalOpen] = useState(false);
 
 	const theme = {
 		primary: isBadeline ? "#9333ea" : "#2563eb",
@@ -356,8 +347,6 @@ export default function App() {
 		},
 	];
 
-	// Dans App.jsx, remplace la fonction handleBadelineQuest :
-
 	const handleBadelineQuest = async () => {
 		try {
 			const response = await fetch(
@@ -365,29 +354,23 @@ export default function App() {
 				{
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({ answer: 5 }), // questId=3, answer=5 comme le backend attend
+					body: JSON.stringify({ answer: 5 }),
 				},
 			);
-
 			const data = await response.json();
 
 			if (response.ok && data.success) {
-				console.log("✅ Quête Badeline validée !");
-
-				// Dispatch avec la bonne structure pour QuestNotification
 				window.dispatchEvent(
 					new CustomEvent("questUpdated", {
 						detail: {
 							quest: {
 								title: data.quest.title,
 								description: data.quest.description,
-								xp: data.quest.xp,
+								xp: data.quest.xpReward,
 							},
 						},
 					}),
 				);
-
-				// Son de victoire
 				const victorySound = new Audio("/sounds/victory.wav");
 				victorySound.volume = 0.2;
 				victorySound.play().catch(() => {});
@@ -409,430 +392,441 @@ export default function App() {
 	};
 
 	return (
-		<motion.div
-			className="app-root"
-			style={{ backgroundColor: theme.bg, color: theme.text }}
-			animate={
-				isDashing
-					? {
-							x: [-20, 20, -15, 15, 0],
-							filter: [
-								"brightness(2) contrast(1.5)",
-								"brightness(1) contrast(1)",
-							],
-						}
-					: {}
-			}
-		>
-			<Particles isBadeline={isBadeline} />
-			<PlayerHUD isBadeline={isBadeline} />
-			<QuestNotification isBadeline={isBadeline} />
-			<Navbar
-				isBadeline={isBadeline}
-				onQuestsClick={() => setQuestsModalOpen(true)}
-			/>
-			<QuestTracker isBadeline={isBadeline} />
+		<>
+			{/* =============================================
+			    CONTENU PRINCIPAL
+			    ============================================= */}
+			<motion.div
+				className="app-root"
+				style={{ backgroundColor: theme.bg, color: theme.text }}
+				animate={
+					isDashing
+						? {
+								x: [-20, 20, -15, 15, 0],
+								filter: [
+									"brightness(2) contrast(1.5)",
+									"brightness(1) contrast(1)",
+								],
+							}
+						: {}
+				}
+			>
+				<Particles isBadeline={isBadeline} />
+				<PlayerHUD isBadeline={isBadeline} />
+				<QuestNotification isBadeline={isBadeline} />
+				<QuestTracker isBadeline={isBadeline} />
 
-			{/* --- TOGGLE --- */}
-			<button type="button" onClick={toggleMode} className="toggle-btn">
-				<div className="toggle-label" style={{ color: theme.primary }}>
-					{isBadeline ? "Part of Me" : "Madeline"}
-				</div>
-				<div
-					className="toggle-track"
-					style={{
-						borderColor: theme.primary,
-						backgroundColor: `${theme.primary}20`,
-					}}
-				>
-					<motion.div
-						animate={{ x: isBadeline ? 40 : 0 }}
-						className="toggle-thumb"
-						style={{ backgroundColor: theme.primary }}
-					/>
-				</div>
-			</button>
+				<header id="accueil" className="site-header">
+					<h1 className="site-title" style={{ color: theme.primary }}>
+						Teddy Serin
+					</h1>
+					<motion.p
+						id="job-title"
+						animate={floatAnimation(-5)}
+						transition={floatTransition(4)}
+						className="site-subtitle"
+					>
+						&gt; Développeur Fullstack _ Pixel Artist
+					</motion.p>
+				</header>
 
-			{/* --- HEADER --- */}
-			<header id="accueil" className="site-header">
-				<h1 className="site-title" style={{ color: theme.primary }}>
-					Teddy Serin
-				</h1>
-				<motion.p
-					id="job-title"
-					animate={floatAnimation(-5)}
-					transition={floatTransition(4)}
-					className="site-subtitle"
-				>
-					&gt; Développeur Fullstack _ Pixel Artist
-				</motion.p>
-			</header>
-
-			{/* --- DOSSIER JOUEUR --- */}
-			<section id="bio" className="section-player">
-				<div className="player-grid">
-					<div className="player-col-main">
-						<h2 className="section-title" style={{ color: theme.accent }}>
-							<motion.div
-								animate={{ y: [0, -8, 0] }}
-								transition={{ repeat: Infinity, duration: 2.5 }}
-								className="section-title-icon"
+				<section id="bio" className="section-player">
+					<div className="player-grid">
+						<div className="player-col-main">
+							<h2 className="section-title" style={{ color: theme.accent }}>
+								<motion.div
+									animate={{ y: [0, -8, 0] }}
+									transition={{ repeat: Infinity, duration: 2.5 }}
+									className="section-title-icon"
+								>
+									<img
+										src={
+											isBadeline
+												? "/images/moongreen.gif"
+												: "/images/moonblue.gif"
+										}
+										alt="Berry"
+										style={{
+											filter: isBadeline
+												? "grayscale(100%) brightness(0.5) sepia(100%) hue-rotate(220deg) saturate(500%) drop-shadow(0 0 8px #9333ea)"
+												: "none",
+										}}
+									/>
+								</motion.div>
+								01. Dossier Joueur
+							</h2>
+							<div
+								style={{
+									flex: 1,
+									display: "flex",
+									flexDirection: "column",
+									marginTop: "3rem",
+								}}
 							>
-								<img
-									src={
-										isBadeline
-											? "/images/moongreen.gif"
-											: "/images/moonblue.gif"
-									}
-									alt="Berry"
+								<motion.div
+									animate={floatAnimation(-8)}
+									transition={floatTransition(3.5, 0.1)}
+									className="player-card"
 									style={{
-										filter: isBadeline
-											? "grayscale(100%) brightness(0.5) sepia(100%) hue-rotate(220deg) saturate(500%) drop-shadow(0 0 8px #9333ea)"
-											: "none",
+										backgroundColor: theme.cardBg,
+										borderColor: theme.cardBorder,
+										boxShadow: theme.cardShadow,
 									}}
-								/>
-							</motion.div>
-							01. Dossier Joueur
-						</h2>
+								>
+									<div>
+										<p className="player-card-text">
+											Explorateur du web et artisan du pixel. Je transforme des
+											concepts complexes en interfaces fluides et en mondes
+											pixelisés.
+										</p>
+										<p
+											className="player-card-quote"
+											style={{ borderLeftColor: theme.primary }}
+										>
+											"Le sommet n'est qu'une étape, l'important est la
+											précision du dash."
+										</p>
+									</div>
+									<div
+										className="player-stats"
+										style={{ borderTopColor: `${theme.cardBorder}40` }}
+									>
+										<div>
+											<span style={{ color: theme.primary }}>LVL:</span> 28
+										</div>
+										<div>
+											<span style={{ color: theme.primary }}>STAMINA:</span> MAX
+										</div>
+										<div>
+											<span style={{ color: theme.primary }}>EXP:</span> DORANCO
+											• WCS
+										</div>
+										<div>
+											<span style={{ color: theme.primary }}>LOC:</span> FR
+										</div>
+									</div>
+								</motion.div>
+								<div className="social-grid">
+									<motion.a
+										animate={floatAnimation(-5)}
+										transition={floatTransition(3, 0)}
+										href="https://github.com/Mob-y"
+										target="_blank"
+										rel="noopener noreferrer"
+										className="social-link"
+										style={{
+											backgroundColor: theme.cardBg,
+											borderColor: theme.cardBorder,
+											boxShadow: theme.cardShadow,
+										}}
+									>
+										<Code2
+											size={30}
+											className="social-link-icon"
+											style={{ color: theme.primary }}
+										/>
+										<span className="social-link-text">GITHUB</span>
+										<span className="social-link-email-hidden">
+											github.com/Mob-y
+										</span>
+									</motion.a>
+									<motion.a
+										animate={floatAnimation(-5)}
+										transition={floatTransition(3, 0.3)}
+										href="https://www.linkedin.com/in/teddy-serin-56215a266/"
+										target="_blank"
+										rel="noopener noreferrer"
+										className="social-link"
+										style={{
+											backgroundColor: theme.cardBg,
+											borderColor: theme.cardBorder,
+											boxShadow: theme.cardShadow,
+										}}
+									>
+										<LayoutDashboard
+											size={30}
+											className="social-link-icon"
+											style={{ color: theme.primary }}
+										/>
+										<span className="social-link-text">LINKEDIN</span>
+										<span className="social-link-email-hidden">
+											linkedin.com/in/teddy-serin
+										</span>
+									</motion.a>
+									<motion.a
+										animate={floatAnimation(-5)}
+										transition={floatTransition(3, 0.6)}
+										href="mailto:serinteddy@gmail.com"
+										className="social-link"
+										style={{
+											backgroundColor: theme.cardBg,
+											borderColor: theme.accent,
+											boxShadow: theme.cardShadow,
+										}}
+									>
+										<Mail
+											size={30}
+											className="social-link-icon"
+											style={{ color: theme.accent }}
+										/>
+										<span
+											className="social-link-text"
+											style={{ color: theme.accent }}
+										>
+											Gmail
+										</span>
+										<span className="social-link-email-hidden">
+											serinteddy@gmail.com
+										</span>
+									</motion.a>
+								</div>
+							</div>
+						</div>
+						<div className="player-col-skills">
+							<div className="skills-spacer" aria-hidden="true" />
+							<div className="skills-list">
+								{SKILLS.map((skill) => (
+									<motion.div
+										key={skill.id}
+										animate={floatAnimation(-6)}
+										transition={floatTransition(3.2, skill.delay)}
+										className="skill-card"
+										style={{
+											backgroundColor: theme.cardBg,
+											borderColor: theme.cardBorder,
+											borderLeftColor: theme.primary,
+											boxShadow: theme.cardShadow,
+										}}
+									>
+										<div style={{ color: skill.color, flexShrink: 0 }}>
+											{skill.icon}
+										</div>
+										<div>
+											<div className="skill-name">{skill.name}</div>
+											<div className="skill-tools">{skill.tools}</div>
+										</div>
+									</motion.div>
+								))}
+							</div>
+						</div>
+					</div>
+				</section>
 
-						<div
-							style={{
-								flex: 1,
-								display: "flex",
-								flexDirection: "column",
-								marginTop: "3rem",
-							}}
-						>
+				<main id="projects" className="section-inventory">
+					<h2 className="inventory-title">02. Inventaire</h2>
+					<div className="projects-grid">
+						{PROJECTS.map((p, idx) => (
 							<motion.div
-								animate={floatAnimation(-8)}
-								transition={floatTransition(3.5, 0.1)}
-								className="player-card"
+								key={`project-${p.id}`}
+								animate={floatAnimation(-10)}
+								transition={floatTransition(4, idx * 0.2)}
+								whileHover={{ scale: 1.02, y: -15 }}
+								onClick={() => setSelectedProject(p)}
+								className="project-card"
 								style={{
 									backgroundColor: theme.cardBg,
 									borderColor: theme.cardBorder,
 									boxShadow: theme.cardShadow,
 								}}
 							>
-								<div>
-									<p className="player-card-text">
-										Explorateur du web et artisan du pixel. Je transforme des
-										concepts complexes en interfaces fluides et en mondes
-										pixelisés.
-									</p>
-									<p
-										className="player-card-quote"
-										style={{ borderLeftColor: theme.primary }}
-									>
-										"Le sommet n'est qu'une étape, l'important est la précision
-										du dash."
-									</p>
-								</div>
-								<div
-									className="player-stats"
-									style={{ borderTopColor: `${theme.cardBorder}40` }}
-								>
-									<div>
-										<span style={{ color: theme.primary }}>LVL:</span> 28
-									</div>
-									<div>
-										<span style={{ color: theme.primary }}>STAMINA:</span> MAX
-									</div>
-									<div>
-										<span style={{ color: theme.primary }}>EXP:</span> DORANCO •
-										WCS
-									</div>
-									<div>
-										<span style={{ color: theme.primary }}>LOC:</span> FR
-									</div>
+								<img
+									src={p.image}
+									alt={p.title}
+									className="project-card-img"
+									style={{ borderBottomColor: theme.cardBorder }}
+								/>
+								<div className="project-card-body">
+									<h3 className="project-card-title">{p.title}</h3>
+									<p className="project-card-desc">{p.description}</p>
 								</div>
 							</motion.div>
-
-							<div className="social-grid">
-								<motion.a
-									animate={floatAnimation(-5)}
-									transition={floatTransition(3, 0)}
-									href="https://github.com/Mob-y"
-									target="_blank"
-									rel="noopener noreferrer"
-									className="social-link"
-									style={{
-										backgroundColor: theme.cardBg,
-										borderColor: theme.cardBorder,
-										boxShadow: theme.cardShadow,
-									}}
-								>
-									<Code2
-										size={30}
-										className="social-link-icon"
-										style={{ color: theme.primary }}
-									/>
-									<span className="social-link-text">GITHUB</span>
-									<span className="social-link-email-hidden">
-										github.com/Mob-y
-									</span>
-								</motion.a>
-								<motion.a
-									animate={floatAnimation(-5)}
-									transition={floatTransition(3, 0.3)}
-									href="https://www.linkedin.com/in/teddy-serin-56215a266/"
-									target="_blank"
-									rel="noopener noreferrer"
-									className="social-link"
-									style={{
-										backgroundColor: theme.cardBg,
-										borderColor: theme.cardBorder,
-										boxShadow: theme.cardShadow,
-									}}
-								>
-									<LayoutDashboard
-										size={30}
-										className="social-link-icon"
-										style={{ color: theme.primary }}
-									/>
-									<span className="social-link-text">LINKEDIN</span>
-									<span className="social-link-email-hidden">
-										linkedin.com/in/teddy-serin
-									</span>
-								</motion.a>
-								<motion.a
-									animate={floatAnimation(-5)}
-									transition={floatTransition(3, 0.6)}
-									href="mailto:serinteddy@gmail.com"
-									className="social-link"
-									style={{
-										backgroundColor: theme.cardBg,
-										borderColor: theme.accent,
-										boxShadow: theme.cardShadow,
-									}}
-								>
-									<Mail
-										size={30}
-										className="social-link-icon"
-										style={{ color: theme.accent }}
-									/>
-									<span
-										className="social-link-text"
-										style={{ color: theme.accent }}
-									>
-										Gmail
-									</span>
-									<span className="social-link-email-hidden">
-										serinteddy@gmail.com
-									</span>
-								</motion.a>
-							</div>
-						</div>
+						))}
 					</div>
+				</main>
 
-					<div className="player-col-skills">
-						<div className="skills-spacer" aria-hidden="true" />
-						<div className="skills-list">
-							{SKILLS.map((skill) => (
-								<motion.div
-									key={skill.id}
-									animate={floatAnimation(-6)}
-									transition={floatTransition(3.2, skill.delay)}
-									className="skill-card"
+				<section id="contact" className="section-contact">
+					<motion.div
+						animate={floatAnimation(-12)}
+						transition={floatTransition(5)}
+						className="contact-card"
+						style={{ borderColor: theme.primary }}
+					>
+						<div className="contact-inner">
+							<div
+								className="contact-avatar"
+								style={{ borderColor: theme.primary }}
+							>
+								<img
+									src="images/avatar.png"
+									alt="Avatar"
 									style={{
-										backgroundColor: theme.cardBg,
-										borderColor: theme.cardBorder,
-										borderLeftColor: theme.primary,
-										boxShadow: theme.cardShadow,
+										filter: isBadeline
+											? "hue-rotate(280deg) brightness(0.8)"
+											: "none",
 									}}
-								>
-									<div style={{ color: skill.color, flexShrink: 0 }}>
-										{skill.icon}
-									</div>
-									<div>
-										<div className="skill-name">{skill.name}</div>
-										<div className="skill-tools">{skill.tools}</div>
-									</div>
-								</motion.div>
-							))}
-						</div>
-					</div>
-				</div>
-			</section>
-
-			{/* --- INVENTAIRE --- */}
-			<main id="projects" className="section-inventory">
-				<h2 className="inventory-title">02. Inventaire</h2>
-				<div className="projects-grid">
-					{PROJECTS.map((p, idx) => (
-						<motion.div
-							key={`project-${p.id}`}
-							animate={floatAnimation(-10)}
-							transition={floatTransition(4, idx * 0.2)}
-							whileHover={{ scale: 1.02, y: -15 }}
-							onClick={() => setSelectedProject(p)}
-							className="project-card"
-							style={{
-								backgroundColor: theme.cardBg,
-								borderColor: theme.cardBorder,
-								boxShadow: theme.cardShadow,
-							}}
-						>
-							<img
-								src={p.image}
-								alt={p.title}
-								className="project-card-img"
-								style={{ borderBottomColor: theme.cardBorder }}
-							/>
-							<div className="project-card-body">
-								<h3 className="project-card-title">{p.title}</h3>
-								<p className="project-card-desc">{p.description}</p>
-							</div>
-						</motion.div>
-					))}
-				</div>
-			</main>
-
-			{/* --- CONTACT --- */}
-			<section id="contact" className="section-contact">
-				<motion.div
-					animate={floatAnimation(-12)}
-					transition={floatTransition(5)}
-					className="contact-card"
-					style={{ borderColor: theme.primary }}
-				>
-					<div className="contact-inner">
-						<div
-							className="contact-avatar"
-							style={{ borderColor: theme.primary }}
-						>
-							<img
-								src="images/avatar.png"
-								alt="Avatar"
-								style={{
-									filter: isBadeline
-										? "hue-rotate(280deg) brightness(0.8)"
-										: "none",
-								}}
-							/>
-						</div>
-						<div className="contact-content">
-							<h3 className="contact-name" style={{ color: theme.primary }}>
-								{isBadeline ? "Part_of_Me.exe" : "Teddy_Serin.js"}
-							</h3>
-							<div className="contact-text">
-								<TypewriterText
-									keyId={isBadeline ? "bad" : "mad"}
-									text={
-										isBadeline
-											? "« Tu penses vraiment pouvoir finir ce projet tout seul ? L'ascension est encore longue... »"
-											: "« Un projet en tête ou juste envie de discuter Pixel Art et Fullstack ? Je suis à un dash de distance ! »"
-									}
 								/>
 							</div>
+							<div className="contact-content">
+								<h3 className="contact-name" style={{ color: theme.primary }}>
+									{isBadeline ? "Part_of_Me.exe" : "Teddy_Serin.js"}
+								</h3>
+								<div className="contact-text">
+									<TypewriterText
+										keyId={isBadeline ? "bad" : "mad"}
+										text={
+											isBadeline
+												? "« Tu penses vraiment pouvoir finir ce projet tout seul ? L'ascension est encore longue... »"
+												: "« Un projet en tête ou juste envie de discuter Pixel Art et Fullstack ? Je suis à un dash de distance ! »"
+										}
+									/>
+								</div>
+							</div>
 						</div>
-					</div>
-				</motion.div>
-			</section>
+					</motion.div>
+				</section>
 
-			{/* --- FOOTER --- */}
-			<footer
-				className="site-footer"
-				style={{
-					backgroundColor: theme.cardBg,
-					borderTopColor: theme.cardBorder,
-				}}
-			>
-				<p>Teddy Serin — {isBadeline ? "Part of Me" : "The Summit"} — 2026</p>
-			</footer>
+				<footer
+					className="site-footer"
+					style={{
+						backgroundColor: theme.cardBg,
+						borderTopColor: theme.cardBorder,
+					}}
+				>
+					<p>Teddy Serin — {isBadeline ? "Part of Me" : "The Summit"} — 2026</p>
+				</footer>
 
-			{/* --- MODALE --- */}
+				<BadelineSide
+					isBadeline={isBadeline}
+					completeBadelineQuest={handleBadelineQuest}
+				/>
+			</motion.div>
+
+			{/* =============================================
+			    PORTAL — Navbar + Toggle + Modals
+			    Rendus DIRECTEMENT dans document.body,
+			    donc JAMAIS bloqués par les modals
+			    ============================================= */}
 			{typeof document !== "undefined" &&
 				createPortal(
-					<AnimatePresence>
-						{selectedProject && (
-							<motion.div
-								initial={{ opacity: 0 }}
-								animate={{ opacity: 1 }}
-								exit={{ opacity: 0 }}
-								onClick={() => setSelectedProject(null)}
-								className="modal-overlay"
+					<>
+						{/* NAVBAR — toujours cliquable */}
+						<Navbar
+							isBadeline={isBadeline}
+							onQuestsClick={() => setQuestsModalOpen(true)}
+							onContactClick={() => setContactModalOpen(true)}
+						/>
+
+						{/* TOGGLE — toujours cliquable */}
+						<button type="button" onClick={toggleMode} className="toggle-btn">
+							<div className="toggle-label" style={{ color: theme.primary }}>
+								{isBadeline ? "Part of Me" : "Madeline"}
+							</div>
+							<div
+								className="toggle-track"
+								style={{
+									borderColor: theme.primary,
+									backgroundColor: `${theme.primary}20`,
+								}}
 							>
 								<motion.div
-									initial={{ scale: 0.9, y: 20 }}
-									animate={{ scale: 1, y: 0 }}
-									onClick={(e) => e.stopPropagation()}
-									className="modal-box"
-									style={{
-										backgroundColor: theme.bg,
-										borderColor: theme.primary,
-										color: theme.text,
-									}}
+									animate={{ x: isBadeline ? 40 : 0 }}
+									className="toggle-thumb"
+									style={{ backgroundColor: theme.primary }}
+								/>
+							</div>
+						</button>
+
+						{/* MODALE PROJET */}
+						<AnimatePresence>
+							{selectedProject && (
+								<motion.div
+									initial={{ opacity: 0 }}
+									animate={{ opacity: 1 }}
+									exit={{ opacity: 0 }}
+									onClick={() => setSelectedProject(null)}
+									className="modal-overlay"
 								>
-									<div
-										className="modal-header"
-										style={{ borderBottomColor: theme.cardBorder }}
+									<motion.div
+										initial={{ scale: 0.9, y: 20 }}
+										animate={{ scale: 1, y: 0 }}
+										onClick={(e) => e.stopPropagation()}
+										className="modal-box"
+										style={{
+											backgroundColor: theme.bg,
+											borderColor: theme.primary,
+											color: theme.text,
+										}}
 									>
-										<span
-											className="modal-header-label"
-											style={{ color: theme.primary }}
+										<div
+											className="modal-header"
+											style={{ borderBottomColor: theme.cardBorder }}
 										>
-											Inspection de l'item
-										</span>
-										<X
-											size={40}
-											className="modal-close"
-											onClick={() => setSelectedProject(null)}
+											<span
+												className="modal-header-label"
+												style={{ color: theme.primary }}
+											>
+												Inspection de l'item
+											</span>
+											<X
+												size={40}
+												className="modal-close"
+												onClick={() => setSelectedProject(null)}
+											/>
+										</div>
+										<img
+											src={selectedProject.image}
+											alt={selectedProject.title}
+											className="modal-img"
+											style={{ borderColor: theme.cardBorder }}
 										/>
-									</div>
-									<img
-										src={selectedProject.image}
-										alt={selectedProject.title}
-										className="modal-img"
-										style={{ borderColor: theme.cardBorder }}
-									/>
-									<h2 className="modal-title">{selectedProject.title}</h2>
-									<p className="modal-desc">{selectedProject.description}</p>
-									<div className="modal-actions">
-										{selectedProject.link && selectedProject.link !== "#" && (
-											<a
-												href={selectedProject.link}
-												target="_blank"
-												rel="noopener noreferrer"
-												className="modal-btn-primary"
-												style={{ backgroundColor: theme.primary }}
-											>
-												🔗 Voir le site
-											</a>
-										)}
-										{selectedProject.github && (
-											<a
-												href={selectedProject.github}
-												target="_blank"
-												rel="noopener noreferrer"
-												className="modal-btn-outline"
-												style={{
-													borderColor: theme.primary,
-													color: theme.primary,
-												}}
-											>
-												📁 Voir le code
-											</a>
-										)}
-									</div>
+										<h2 className="modal-title">{selectedProject.title}</h2>
+										<p className="modal-desc">{selectedProject.description}</p>
+										<div className="modal-actions">
+											{selectedProject.link && selectedProject.link !== "#" && (
+												<a
+													href={selectedProject.link}
+													target="_blank"
+													rel="noopener noreferrer"
+													className="modal-btn-primary"
+													style={{ backgroundColor: theme.primary }}
+												>
+													🔗 Voir le site
+												</a>
+											)}
+											{selectedProject.github && (
+												<a
+													href={selectedProject.github}
+													target="_blank"
+													rel="noopener noreferrer"
+													className="modal-btn-outline"
+													style={{
+														borderColor: theme.primary,
+														color: theme.primary,
+													}}
+												>
+													📁 Voir le code
+												</a>
+											)}
+										</div>
+									</motion.div>
 								</motion.div>
-							</motion.div>
-						)}
-					</AnimatePresence>,
+							)}
+						</AnimatePresence>
+
+						{/* MODALES QUETES + CONTACT */}
+						<QuestsModal
+							isOpen={questsModalOpen}
+							onClose={() => setQuestsModalOpen(false)}
+							isBadeline={isBadeline}
+						/>
+						<ContactModal
+							isOpen={contactModalOpen}
+							onClose={() => setContactModalOpen(false)}
+							isBadeline={isBadeline}
+						/>
+					</>,
 					document.body,
 				)}
-
-			{/* QUESTS MODAL */}
-			<QuestsModal
-				isOpen={questsModalOpen}
-				onClose={() => setQuestsModalOpen(false)}
-				isBadeline={isBadeline}
-			/>
-
-			{/* CONNEXION DE LA QUÊTE ICI */}
-			<BadelineSide
-				isBadeline={isBadeline}
-				completeBadelineQuest={handleBadelineQuest}
-			/>
-		</motion.div>
+		</>
 	);
 }
