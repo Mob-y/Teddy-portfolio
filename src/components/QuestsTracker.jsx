@@ -152,18 +152,14 @@ const QuestTracker = ({ isBadeline }) => {
 	}, [validateQuest]);
 
 	// Quête 10: Toggle mode 5 fois
-	// On utilise un ref pour éviter que isBadeline soit dans les deps
-	const isBadelineRef = useRef(isBadeline);
-	useEffect(() => {
-		isBadelineRef.current = isBadeline;
-	}, [isBadeline]);
-
+	// biome-ignore lint/correctness/useExhaustiveDependencies: isBadeline doit trigger le compteur
 	useEffect(() => {
 		toggleCount.current += 1;
+		console.log("Toggle count:", toggleCount.current);
 		if (toggleCount.current >= 5) {
 			validateQuest("10");
 		}
-	}, [validateQuest]);
+	}, [isBadeline, validateQuest]);
 
 	// Quête 4: Konami Code
 	useEffect(() => {

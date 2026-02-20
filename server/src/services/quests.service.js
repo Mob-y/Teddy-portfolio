@@ -11,7 +11,7 @@ const QUESTS = [
 	{
 		id: "1",
 		title: "Premier Pas",
-		description: "Visitez la section 'Dossier Joueur'.",
+		description: "Bonne visite de la page.",
 		xpReward: 25,
 		badge: "👣",
 		unlockTitle: null,
@@ -21,7 +21,7 @@ const QUESTS = [
 	{
 		id: "2",
 		title: "Collectionneur",
-		description: "Ouvrez 3 projets différents de l'inventaire.",
+		description: "La curiosité est un bon défauts.",
 		xpReward: 50,
 		badge: "🎒",
 		unlockTitle: null,
@@ -31,8 +31,8 @@ const QUESTS = [
 	},
 	{
 		id: "3",
-		title: "L'Ombre de la Montagne",
-		description: "Badeline fait désormais partie de vous.",
+		title: "Le secret de la téléportation",
+		description: "Déranger Badeline.",
 		xpReward: 100,
 		badge: "👻",
 		unlockTitle: "Grimpeur Maudit",
@@ -44,8 +44,8 @@ const QUESTS = [
 	// === EASTER EGGS ===
 	{
 		id: "4",
-		title: "Code Konami",
-		description: "Entrez le code légendaire : ↑ ↑ ↓ ↓ ← → ← → B A",
+		title: "Merci Konami",
+		description: "Entrez le code légendaire : (B A)",
 		xpReward: 150,
 		badge: "🎮",
 		unlockTitle: "Vétéran du Pixel",
@@ -55,7 +55,7 @@ const QUESTS = [
 	{
 		id: "5",
 		title: "42",
-		description: "La réponse à la grande question.",
+		description: "La réponse à la grande question. (Clavier)",
 		xpReward: 42,
 		badge: "🌌",
 		unlockTitle: null,
@@ -67,7 +67,7 @@ const QUESTS = [
 	{
 		id: "6",
 		title: "Explorateur Persévérant",
-		description: "Restez sur le site pendant 2 minutes.",
+		description: "AFK.",
 		xpReward: 75,
 		badge: "⏱️",
 		unlockTitle: null,
@@ -77,7 +77,7 @@ const QUESTS = [
 	{
 		id: "7",
 		title: "Oiseau de Nuit",
-		description: "Visitez le site entre minuit et 3h du matin.",
+		description: "Que pourrai t'il ce passer à minuit ?",
 		xpReward: 200,
 		badge: "🦉",
 		unlockTitle: "Noctambule",
@@ -89,7 +89,7 @@ const QUESTS = [
 	{
 		id: "8",
 		title: "Speedrunner",
-		description: "Scrollez jusqu'en bas du site en moins de 5 secondes.",
+		description: "Scroller comme Sonic.",
 		xpReward: 100,
 		badge: "⚡",
 		unlockTitle: "Dash Master",
@@ -99,7 +99,7 @@ const QUESTS = [
 	{
 		id: "9",
 		title: "Curieux",
-		description: "Survolez tous les liens sociaux (GitHub, LinkedIn, Gmail).",
+		description: "Regarder mes informations sociales de plus près.",
 		xpReward: 50,
 		badge: "🔍",
 		unlockTitle: null,
@@ -110,7 +110,7 @@ const QUESTS = [
 	{
 		id: "10",
 		title: "Métamorphose",
-		description: "Basculez entre Madeline et Badeline 5 fois.",
+		description: "Upside down.",
 		xpReward: 75,
 		badge: "🌓",
 		unlockTitle: null,
@@ -123,7 +123,7 @@ const QUESTS = [
 	{
 		id: "11",
 		title: "Le Sommet",
-		description: "Complétez toutes les autres quêtes.",
+		description: "Platine.",
 		xpReward: 500,
 		badge: "🏔️",
 		unlockTitle: "Maître du Sommet",
