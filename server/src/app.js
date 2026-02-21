@@ -10,17 +10,7 @@ const contactRoutes = require("./routes/contact.routes");
 
 const app = express();
 
-
-app.use(
-	cors({
-		origin: [
-			"https://portfolio-theta-gules-82.vercel.app",
-			"https://portfolio-celeste-two.vercel.app",
-			"http://localhost:5173",
-		],
-		credentials: true,
-	}),
-);
+app.use(cors());
 
 app.use(express.json());
 
