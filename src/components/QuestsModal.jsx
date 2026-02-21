@@ -22,8 +22,8 @@ const QuestsModal = ({ isOpen, onClose, isBadeline }) => {
 	const fetchQuestsData = useCallback(async () => {
 		try {
 			const [questsRes, progressRes] = await Promise.all([
-				fetch("http://localhost:5000/api/quests"),
-				fetch("http://localhost:5000/api/quests/progress"),
+				fetch(`${import.meta.env.VITE_API_URL}/api/quests`),
+				fetch(`${import.meta.env.VITE_API_URL}/api/quests/progress`),
 			]);
 			const questsData = await questsRes.json();
 			const progressData = await progressRes.json();
@@ -46,7 +46,7 @@ const QuestsModal = ({ isOpen, onClose, isBadeline }) => {
 
 	const handleEquipBadge = async (badge) => {
 		try {
-			await fetch("http://localhost:5000/api/quests/equip/badge", {
+			await fetch(`${import.meta.env.VITE_API_URL}/api/quests/equip/badge`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ badge }),
@@ -60,7 +60,7 @@ const QuestsModal = ({ isOpen, onClose, isBadeline }) => {
 
 	const handleEquipTitle = async (title) => {
 		try {
-			await fetch("http://localhost:5000/api/quests/equip/title", {
+			await fetch(`${import.meta.env.VITE_API_URL}/api/quests/equip/title`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ title }),
@@ -165,7 +165,9 @@ const QuestsModal = ({ isOpen, onClose, isBadeline }) => {
 
 												{isCompleted && (
 													<div className="quest-completed-info">
-														<span className="quest-completed-badge">✓ Complétée</span>
+														<span className="quest-completed-badge">
+															✓ Complétée
+														</span>
 														{quest.badge && (
 															<img
 																src={`/images/${quest.badge}`}
@@ -217,7 +219,9 @@ const QuestsModal = ({ isOpen, onClose, isBadeline }) => {
 														className="customize-badge-img"
 													/>
 													{isActive && (
-														<span className="customize-equipped-label">Équipé</span>
+														<span className="customize-equipped-label">
+															Équipé
+														</span>
 													)}
 												</motion.button>
 											);
@@ -250,7 +254,9 @@ const QuestsModal = ({ isOpen, onClose, isBadeline }) => {
 														{isActive ? "★" : "☆"} {titleName}
 													</span>
 													{isActive && (
-														<span className="customize-equipped-label">Équipé</span>
+														<span className="customize-equipped-label">
+															Équipé
+														</span>
 													)}
 												</motion.button>
 											);
@@ -264,7 +270,9 @@ const QuestsModal = ({ isOpen, onClose, isBadeline }) => {
 								<h3 className="customize-section-title">👁 Aperçu HUD</h3>
 								<div className="customize-preview">
 									{progress.title && (
-										<div className="customize-preview-title">✨ {progress.title}</div>
+										<div className="customize-preview-title">
+											✨ {progress.title}
+										</div>
 									)}
 									<div className="customize-preview-badge-row">
 										{progress.activeBadge ? (
@@ -274,7 +282,9 @@ const QuestsModal = ({ isOpen, onClose, isBadeline }) => {
 												className="customize-preview-badge"
 											/>
 										) : (
-											<span className="customize-empty">Aucun badge équipé</span>
+											<span className="customize-empty">
+												Aucun badge équipé
+											</span>
 										)}
 									</div>
 								</div>

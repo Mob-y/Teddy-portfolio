@@ -180,16 +180,12 @@ const BadelineSide = ({ isBadeline, completeBadelineQuest }) => {
 	const teleport = (e) => {
 		e.preventDefault();
 		e.stopPropagation();
-
 		const sound = new Audio("/sounds/disappear.wav");
 		sound.volume = 0.1;
 		sound.play().catch(() => {});
-
 		setClickCount(clickCount + 1);
-
 		setGhosts((prev) => [...prev, { id: Date.now(), x: pos.x, y: pos.y }]);
 		setTimeout(() => setGhosts((prev) => prev.slice(1)), 500);
-
 		const docWidth = document.documentElement.offsetWidth;
 		const docHeight = document.documentElement.scrollHeight;
 		const margin = 100;
@@ -221,7 +217,6 @@ const BadelineSide = ({ isBadeline, completeBadelineQuest }) => {
 					}}
 				/>
 			))}
-
 			<motion.div
 				key="badeline-main"
 				onClick={teleport}
@@ -350,7 +345,7 @@ export default function App() {
 	const handleBadelineQuest = async () => {
 		try {
 			const response = await fetch(
-				"http://localhost:5000/api/quests/3/validate",
+				`${import.meta.env.VITE_API_URL}/api/quests/3/validate`,
 				{
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
@@ -358,7 +353,6 @@ export default function App() {
 				},
 			);
 			const data = await response.json();
-
 			if (response.ok && data.success) {
 				window.dispatchEvent(
 					new CustomEvent("questUpdated", {

@@ -10,7 +10,6 @@ const PlayerHUD = ({ isBadeline }) => {
 		activeBadge: null,
 		title: null,
 		completedQuests: [],
-		
 	});
 	const [showLevelUp, setShowLevelUp] = useState(false);
 	const previousLevelRef = useRef(null);
@@ -19,7 +18,9 @@ const PlayerHUD = ({ isBadeline }) => {
 
 	const fetchProgress = useCallback(async () => {
 		try {
-			const res = await fetch("http://localhost:5000/api/quests/progress");
+			const res = await fetch(
+				`${import.meta.env.VITE_API_URL}/api/quests/progress`,
+			);
 			if (!res.ok) throw new Error("Erreur réseau");
 			const data = await res.json();
 
@@ -55,9 +56,7 @@ const PlayerHUD = ({ isBadeline }) => {
 		<div className={`hud-root ${themeClass}`}>
 			<div className="hud-container">
 				{/* Titre actif */}
-				{progress.title && (
-					<div className="hud-title">✨ {progress.title}</div>
-				)}
+				{progress.title && <div className="hud-title">✨ {progress.title}</div>}
 
 				<div className="hud-header">
 					<motion.span
