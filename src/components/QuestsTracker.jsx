@@ -9,7 +9,6 @@ const QuestTracker = ({ isBadeline }) => {
 	const scrollStartTime = useRef(null);
 	const konamiSequence = useRef([]);
 
-	// useMemo pour que KONAMI_CODE ne change jamais
 	const KONAMI_CODE = useMemo(
 		() => [
 			"ArrowUp",
@@ -30,7 +29,6 @@ const QuestTracker = ({ isBadeline }) => {
 		setCompletedQuests((prev) => {
 			if (prev.includes(questId)) return prev;
 
-			// Utilisation du service centralisé
 			questsService
 				.validateQuest(questId, answer)
 				.then((data) => {
@@ -155,7 +153,6 @@ const QuestTracker = ({ isBadeline }) => {
 	// biome-ignore lint/correctness/useExhaustiveDependencies: isBadeline doit trigger le compteur
 	useEffect(() => {
 		toggleCount.current += 1;
-		console.log("Toggle count:", toggleCount.current);
 		if (toggleCount.current >= 5) {
 			validateQuest("10");
 		}
@@ -198,10 +195,18 @@ const QuestTracker = ({ isBadeline }) => {
 		return () => window.removeEventListener("keypress", handleKey);
 	}, [validateQuest]);
 
-	// Quête 11: Achievement (vérifié côté serveur)
+	// ✅ FIX : Quête 12 = Le Sommet (platine, toutes les autres complétées)
+	// On vérifie quand on a complété les 10 quêtes "normales" (1-10),
+	// ce qui déclenche la vérification serveur de la quête 12.
+	// La quête 11 (Messager) est gérée côté serveur via le formulaire contact.
 	useEffect(() => {
-		if (completedQuests.length === 10) {
-			validateQuest("11");
+		// Les quêtes "normales" sont 1 à 10 (hors 11 contact et 12 platine)
+		const normalQuestIds = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
+		const allNormalDone = normalQuestIds.every((id) =>
+			completedQuests.includes(id),
+		);
+		if (allNormalDone && completedQuests.length >= 10) {
+			validateQuest("12");
 		}
 	}, [completedQuests, validateQuest]);
 

@@ -12,14 +12,16 @@ const sendContact = async (req, res) => {
 
 	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 	if (!emailRegex.test(email)) {
-		return res
-			.status(400)
-			.json({ success: false, message: "Email invalide" });
+		return res.status(400).json({ success: false, message: "Email invalide" });
 	}
 
 	try {
 		await sendContactEmail({ name, email, message });
-		const questResult = validateQuest("12", null);
+
+		// ✅ FIX : quête "11" = Messager (envoyer un message)
+		// quête "12" = Le Sommet (platine, toutes les quêtes complétées)
+		const questResult = validateQuest("11", null);
+
 		return res.json({
 			success: true,
 			message: "Message envoyé avec succès !",

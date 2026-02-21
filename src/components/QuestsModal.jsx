@@ -165,9 +165,7 @@ const QuestsModal = ({ isOpen, onClose, isBadeline }) => {
 
 												{isCompleted && (
 													<div className="quest-completed-info">
-														<span className="quest-completed-badge">
-															✓ Complétée
-														</span>
+														<span className="quest-completed-badge">✓ Complétée</span>
 														{quest.badge && (
 															<img
 																src={`/images/${quest.badge}`}
@@ -219,9 +217,7 @@ const QuestsModal = ({ isOpen, onClose, isBadeline }) => {
 														className="customize-badge-img"
 													/>
 													{isActive && (
-														<span className="customize-equipped-label">
-															Équipé
-														</span>
+														<span className="customize-equipped-label">Équipé</span>
 													)}
 												</motion.button>
 											);
@@ -254,9 +250,7 @@ const QuestsModal = ({ isOpen, onClose, isBadeline }) => {
 														{isActive ? "★" : "☆"} {titleName}
 													</span>
 													{isActive && (
-														<span className="customize-equipped-label">
-															Équipé
-														</span>
+														<span className="customize-equipped-label">Équipé</span>
 													)}
 												</motion.button>
 											);
@@ -270,9 +264,7 @@ const QuestsModal = ({ isOpen, onClose, isBadeline }) => {
 								<h3 className="customize-section-title">👁 Aperçu HUD</h3>
 								<div className="customize-preview">
 									{progress.title && (
-										<div className="customize-preview-title">
-											✨ {progress.title}
-										</div>
+										<div className="customize-preview-title">✨ {progress.title}</div>
 									)}
 									<div className="customize-preview-badge-row">
 										{progress.activeBadge ? (
@@ -282,9 +274,7 @@ const QuestsModal = ({ isOpen, onClose, isBadeline }) => {
 												className="customize-preview-badge"
 											/>
 										) : (
-											<span className="customize-empty">
-												Aucun badge équipé
-											</span>
+											<span className="customize-empty">Aucun badge équipé</span>
 										)}
 									</div>
 								</div>

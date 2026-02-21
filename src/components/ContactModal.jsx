@@ -61,9 +61,7 @@ const ContactModal = ({ isOpen, onClose, isBadeline }) => {
 								quest: {
 									title: data.questResult.quest.title,
 									description: data.questResult.quest.description,
-									xp:
-										data.questResult.quest.xpReward ??
-										data.questResult.quest.xp,
+									xp: data.questResult.quest.xpReward ?? data.questResult.quest.xp,
 								},
 							},
 						}),
@@ -122,8 +120,7 @@ const ContactModal = ({ isOpen, onClose, isBadeline }) => {
 								<div className="contact-success-icon">📨</div>
 								<h3 className="contact-success-title">Message envoyé !</h3>
 								<p className="contact-success-text">
-									Ton message a bien été transmis. Je te répondrai dès que
-									possible !
+									Ton message a bien été transmis. Je te répondrai dès que possible !
 								</p>
 								{questUnlocked && (
 									<div className="contact-success-quest">
@@ -193,9 +190,7 @@ const ContactModal = ({ isOpen, onClose, isBadeline }) => {
 											autoComplete="off"
 										/>
 										{errors.email && (
-											<span className="contact-error-msg">
-												⚠ {errors.email}
-											</span>
+											<span className="contact-error-msg">⚠ {errors.email}</span>
 										)}
 									</div>
 
@@ -215,17 +210,12 @@ const ContactModal = ({ isOpen, onClose, isBadeline }) => {
 											{form.message.length} / {MAX_MESSAGE_LENGTH}
 										</span>
 										{errors.message && (
-											<span className="contact-error-msg">
-												⚠ {errors.message}
-											</span>
+											<span className="contact-error-msg">⚠ {errors.message}</span>
 										)}
 									</div>
 
 									{status === "error" && (
-										<p
-											className="contact-error-msg"
-											style={{ textAlign: "center" }}
-										>
+										<p className="contact-error-msg" style={{ textAlign: "center" }}>
 											⚠ Erreur lors de l'envoi. Réessaie plus tard.
 										</p>
 									)}
@@ -237,9 +227,7 @@ const ContactModal = ({ isOpen, onClose, isBadeline }) => {
 										className="contact-submit-btn"
 										whileTap={{ scale: 0.97 }}
 									>
-										{status === "loading"
-											? "⏳ Envoi en cours..."
-											: "⚔ Envoyer le message"}
+										{status === "loading" ? "⏳ Envoi en cours..." : "⚔ Envoyer le message"}
 									</motion.button>
 								</div>
 							</>

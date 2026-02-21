@@ -2,10 +2,10 @@
   "name": "server",
   "version": "1.0.0",
   "main": "app.js",
-"scripts": {
-  "dev": "nodemon src/app.js",
-  "start": "node src/app.js"
-},
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js"
+  },
   "dependencies": {
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
