@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { questsService } from "../services/quest.service";
 
 const QuestTracker = ({ isBadeline }) => {
 	const [completedQuests, setCompletedQuests] = useState([]);
@@ -29,12 +30,9 @@ const QuestTracker = ({ isBadeline }) => {
 		setCompletedQuests((prev) => {
 			if (prev.includes(questId)) return prev;
 
-			fetch(`http://localhost:5000/api/quests/${questId}/validate`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ answer }),
-			})
-				.then((res) => res.json())
+			// Utilisation du service centralisé
+			questsService
+				.validateQuest(questId, answer)
 				.then((data) => {
 					if (data.success) {
 						window.dispatchEvent(
@@ -42,9 +40,11 @@ const QuestTracker = ({ isBadeline }) => {
 								detail: { quest: data.quest },
 							}),
 						);
+					} else {
+						console.warn("Erreur validation quête:", data.message);
 					}
 				})
-				.catch((err) => console.error("Erreur validation quête:", err));
+				.catch((err) => console.error("Erreur réseau:", err));
 
 			return [...prev, questId];
 		});
