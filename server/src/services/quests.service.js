@@ -1,12 +1,4 @@
-const playerProgress = {
-	xp: 0,
-	level: 1,
-	badges: [],
-	completedQuests: [],
-	title: null,
-	activeBadge: null,
-	titles: [],
-};
+const db = require("../database");
 
 const QUESTS = [
 	{
@@ -137,21 +129,60 @@ const QUESTS = [
 	},
 ];
 
+const getPlayerProgress = () => {
+	const row = db.prepare("SELECT * FROM player_progress WHERE id = 1").get();
+	return {
+		xp: row.xp,
+		level: row.level,
+		completedQuests: JSON.parse(row.completed_quests),
+		badges: JSON.parse(row.badges),
+		titles: JSON.parse(row.titles),
+		activeBadge: row.active_badge,
+		title: row.active_title,
+	};
+};
+
+const savePlayerProgress = (progress) => {
+	db.prepare(`
+		UPDATE player_progress SET
+			xp = ?,
+			level = ?,
+			completed_quests = ?,
+			badges = ?,
+			titles = ?,
+			active_badge = ?,
+			active_title = ?
+		WHERE id = 1
+	`).run(
+		progress.xp,
+		progress.level,
+		JSON.stringify(progress.completedQuests),
+		JSON.stringify(progress.badges),
+		JSON.stringify(progress.titles),
+		progress.activeBadge,
+		progress.title,
+	);
+};
+
 module.exports = {
 	getQuests: () => QUESTS,
-	getPlayerProgress: () => playerProgress,
+	getPlayerProgress,
 
 	setActiveBadge: (badge) => {
-		if (playerProgress.badges.includes(badge)) {
-			playerProgress.activeBadge = badge;
+		const progress = getPlayerProgress();
+		if (progress.badges.includes(badge)) {
+			progress.activeBadge = badge;
+			savePlayerProgress(progress);
 			return { success: true };
 		}
 		return { success: false, message: "Badge non débloqué" };
 	},
 
 	setActiveTitle: (titleName) => {
-		if (playerProgress.titles.includes(titleName)) {
-			playerProgress.title = titleName;
+		const progress = getPlayerProgress();
+		if (progress.titles.includes(titleName)) {
+			progress.title = titleName;
+			savePlayerProgress(progress);
 			return { success: true };
 		}
 		return { success: false, message: "Titre non débloqué" };
@@ -161,7 +192,9 @@ module.exports = {
 		const quest = QUESTS.find((q) => q.id === questId);
 		if (!quest) return { success: false, message: "Quête introuvable" };
 
-		if (playerProgress.completedQuests.includes(questId)) {
+		const progress = getPlayerProgress();
+
+		if (progress.completedQuests.includes(questId)) {
 			return { success: false, message: "Quête déjà validée" };
 		}
 
@@ -182,9 +215,11 @@ module.exports = {
 				isValid = true;
 				break;
 			case "achievement": {
-				const otherQuests = QUESTS.filter((q) => q.id !== "11" && q.id !== "12");
+				const otherQuests = QUESTS.filter(
+					(q) => q.id !== "11" && q.id !== "12",
+				);
 				const allCompleted = otherQuests.every((q) =>
-					playerProgress.completedQuests.includes(q.id),
+					progress.completedQuests.includes(q.id),
 				);
 				isValid = allCompleted;
 				break;
@@ -192,24 +227,26 @@ module.exports = {
 		}
 
 		if (isValid) {
-			playerProgress.xp += quest.xpReward;
-			playerProgress.completedQuests.push(questId);
+			progress.xp += quest.xpReward;
+			progress.completedQuests.push(questId);
 
-			if (quest.badge && !playerProgress.badges.includes(quest.badge)) {
-				playerProgress.badges.push(quest.badge);
-				if (!playerProgress.activeBadge) {
-					playerProgress.activeBadge = quest.badge;
+			if (quest.badge && !progress.badges.includes(quest.badge)) {
+				progress.badges.push(quest.badge);
+				if (!progress.activeBadge) {
+					progress.activeBadge = quest.badge;
 				}
 			}
 
-			if (quest.unlockTitle && !playerProgress.titles.includes(quest.unlockTitle)) {
-				playerProgress.titles.push(quest.unlockTitle);
-				if (!playerProgress.title) {
-					playerProgress.title = quest.unlockTitle;
+			if (quest.unlockTitle && !progress.titles.includes(quest.unlockTitle)) {
+				progress.titles.push(quest.unlockTitle);
+				if (!progress.title) {
+					progress.title = quest.unlockTitle;
 				}
 			}
 
-			playerProgress.level = Math.floor(playerProgress.xp / 100) + 1;
+			progress.level = Math.floor(progress.xp / 100) + 1;
+
+			savePlayerProgress(progress);
 
 			return {
 				success: true,
@@ -220,7 +257,7 @@ module.exports = {
 					badge: quest.badge,
 					unlockTitle: quest.unlockTitle,
 				},
-				newProgress: playerProgress,
+				newProgress: progress,
 			};
 		}
 
