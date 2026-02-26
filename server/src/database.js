@@ -1,7 +1,15 @@
 const Database = require("better-sqlite3");
 const path = require("path");
+const fs = require("fs");
 
-const db = new Database(path.join(__dirname, "../data/portfolio.db"));
+const dataDir = path.join(__dirname, "../data");
+
+// Crée le dossier data s'il n'existe pas
+if (!fs.existsSync(dataDir)) {
+	fs.mkdirSync(dataDir, { recursive: true });
+}
+
+const db = new Database(path.join(dataDir, "portfolio.db"));
 
 // Création de la table si elle n'existe pas
 db.exec(`
@@ -20,7 +28,7 @@ db.exec(`
 // Initialiser la ligne unique si elle n'existe pas
 const row = db.prepare("SELECT * FROM player_progress WHERE id = 1").get();
 if (!row) {
-  db.prepare("INSERT INTO player_progress (id) VALUES (1)").run();
+	db.prepare("INSERT INTO player_progress (id) VALUES (1)").run();
 }
 
 module.exports = db;
