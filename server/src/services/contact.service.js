@@ -2,7 +2,10 @@ const nodemailer = require("nodemailer");
 
 const sendContactEmail = async ({ name, email, message }) => {
 	const transporter = nodemailer.createTransport({
-		service: "gmail",
+		host: "smtp.gmail.com",
+		port: 587, // Change 465 → 587
+		secure: false, // Change true → false
+		family: 4, // Force IPv4
 		auth: {
 			user: process.env.MAIL_USER,
 			pass: process.env.MAIL_PASS,
