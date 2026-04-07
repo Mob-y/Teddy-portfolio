@@ -335,3 +335,4 @@
 .contact-modal-body::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.3); }
 .contact-modal-body::-webkit-scrollbar-thumb { background: var(--contact-border); }
 .contact-modal-body::-webkit-scrollbar-thumb:hover { background: var(--contact-primary); }
+
