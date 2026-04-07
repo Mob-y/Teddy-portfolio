@@ -696,6 +696,7 @@ export default function App() {
 						}}
 					>
 						<button
+							type="button"
 							onClick={() => setLegalModal("mentions")}
 							style={{
 								background: "none",
@@ -711,6 +712,7 @@ export default function App() {
 							Mentions légales
 						</button>
 						<button
+							type="button"
 							onClick={() => setLegalModal("cookies")}
 							style={{
 								background: "none",
@@ -726,6 +728,7 @@ export default function App() {
 							Cookies
 						</button>
 						<button
+							type="button"
 							onClick={() => setLegalModal("confidentialite")}
 							style={{
 								background: "none",
