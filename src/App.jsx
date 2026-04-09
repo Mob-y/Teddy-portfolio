@@ -683,63 +683,32 @@ export default function App() {
 					style={{
 						backgroundColor: theme.cardBg,
 						borderTopColor: theme.cardBorder,
+						color: theme.text,
 					}}
 				>
 					<p>Teddy Serin — {isBadeline ? "Part of Me" : "The Summit"} — 2026</p>
-					<div
-						style={{
-							display: "flex",
-							gap: "1.5rem",
-							justifyContent: "center",
-							marginTop: "0.75rem",
-							flexWrap: "wrap",
-						}}
-					>
+					<div className="footer-links">
 						<button
 							type="button"
 							onClick={() => setLegalModal("mentions")}
-							style={{
-								background: "none",
-								border: "none",
-								cursor: "pointer",
-								color: theme.primary,
-								fontFamily: "VT323, monospace",
-								fontSize: "1.1rem",
-								textTransform: "uppercase",
-								opacity: 0.6,
-							}}
+							className="footer-btn"
+							style={{ color: theme.primary }}
 						>
 							Mentions légales
 						</button>
 						<button
 							type="button"
 							onClick={() => setLegalModal("cookies")}
-							style={{
-								background: "none",
-								border: "none",
-								cursor: "pointer",
-								color: theme.primary,
-								fontFamily: "VT323, monospace",
-								fontSize: "1.1rem",
-								textTransform: "uppercase",
-								opacity: 0.6,
-							}}
+							className="footer-btn"
+							style={{ color: theme.primary }}
 						>
 							Cookies
 						</button>
 						<button
 							type="button"
 							onClick={() => setLegalModal("confidentialite")}
-							style={{
-								background: "none",
-								border: "none",
-								cursor: "pointer",
-								color: theme.primary,
-								fontFamily: "VT323, monospace",
-								fontSize: "1.1rem",
-								textTransform: "uppercase",
-								opacity: 0.6,
-							}}
+							className="footer-btn"
+							style={{ color: theme.primary }}
 						>
 							Confidentialité
 						</button>

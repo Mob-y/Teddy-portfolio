@@ -387,6 +387,12 @@ body {
 	}
 }
 
+.site-footer {
+	position: relative;
+	z-index: 10;
+	/* ... le reste existe déjà */
+}
+
 .social-link:hover {
 	transform: scale(1.05);
 }
@@ -765,6 +771,33 @@ body {
 	letter-spacing: 0.1em;
 	font-weight: bold;
 	opacity: 0.4;
+}
+
+.footer-links {
+	display: flex;
+	gap: 1.5rem;
+	justify-content: center;
+	margin-top: 0.75rem;
+	flex-wrap: wrap;
+}
+
+.footer-btn {
+	background: none;
+	border: none;
+	cursor: pointer;
+	font-family: "VT323", monospace;
+	font-size: clamp(1rem, 2vw, 1.25rem);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+	transition: opacity 0.2s;
+	opacity: 0.7;
+	color: inherit;
+}
+
+.footer-btn:hover {
+	opacity: 1;
 }
 
 /* =============================================
