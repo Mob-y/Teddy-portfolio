@@ -11,12 +11,12 @@ const contactRoutes = require("./routes/contact.routes");
 const app = express();
 
 app.use(
-	cors({
-		origin: [
-			"https://portfolio-theta-gules-82.vercel.app",
-			"http://localhost:5173",
-		],
-	}),
+    cors({
+        origin: [
+            "https://teddy-portfolio-rouge.vercel.app",
+            "http://localhost:5173",
+        ],
+    }),
 );
 
 app.use(express.json());
