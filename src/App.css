@@ -387,12 +387,6 @@ body {
 	}
 }
 
-.site-footer {
-	position: relative;
-	z-index: 10;
-	/* ... le reste existe déjà */
-}
-
 .social-link:hover {
 	transform: scale(1.05);
 }
@@ -747,6 +741,7 @@ body {
 	text-align: center;
 	border-top-width: 4px;
 	border-top-style: solid;
+	position: relative;
 	z-index: 10;
 	transition: all 0.3s;
 }
