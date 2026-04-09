@@ -866,11 +866,18 @@ export default function App() {
 							onClose={() => setContactModalOpen(false)}
 							isBadeline={isBadeline}
 						/>
-						<LegalModal
-							type={legalModal}
-							onClose={() => setLegalModal(null)}
-							isBadeline={isBadeline}
-						/>
+
+						{/* ✅ FIX : AnimatePresence ici pour que exit() fonctionne */}
+						<AnimatePresence>
+							{legalModal && (
+								<LegalModal
+									key={legalModal}
+									type={legalModal}
+									onClose={() => setLegalModal(null)}
+									isBadeline={isBadeline}
+								/>
+							)}
+						</AnimatePresence>
 					</>,
 					document.body,
 				)}
